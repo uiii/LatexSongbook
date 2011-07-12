@@ -79,6 +79,17 @@
     \section{#1.}{#2}%
 }%
 
+\newcommand{\clearChord}[1]{%
+    \StrSubstitute{#1}{ }{\;\:}[\cleared]%
+    %\StrSubstitute{\cleared}{\#}{\sharp}[\cleared]%
+    %\StrSubstitute{\cleared}{&}{\flat}[\cleared]%
+    \cleared%
+}%
+
+\newcommand{\Chords}[1]{%
+    \section{}{$\mathbf{\clearChord{#1}}$}%
+}%
+
 \catcode`\|=13
 %\def|#1|{%
 %    \raisebox{4.5ex}{%
@@ -116,7 +127,7 @@
 \def|#1|#2|{%
     \savebox{\joinbox}{--}%
     \StrLeft{#2}{1}[\rightletter]%
-    \savebox{\chordbox}{$\mathbf{#1}$}%
+    \savebox{\chordbox}{$\mathbf{\clearChord{#1}}$}%
     \savebox{\textbox}{#2}%
     \ifnum\value{diff} > 0%
         \IfStrEq{\leftletter}{\spaceletter}{%
@@ -129,8 +140,6 @@
                     \hspace{\value{diff}sp}%
                 }{%
                     \setcounter{join}{\value{diff}/\wd\joinbox}%
-                    %\arabic{diff}
-                    %\arabic{join}
                     \ifnum\value{join} = 0%
                         \stepcounter{join}%
                     \fi%
@@ -158,16 +167,16 @@
 }%
 
 \NewEnviron{song}[2]{%
-    \clearpage
-    \setcounter{versecounter}{1}
-    \setcounter{diff}{0}
-    \setlength{\parskip}{2.4ex}
+    \clearpage%
+    \setcounter{versecounter}{1}%
+    \setcounter{diff}{0}%
+    \setlength{\parskip}{2.4ex}%
 
     \noindent%
     \songtitle{#1}%
     \hfill\songauthor{#2}%
     \vspace{1.5ex}\par%
-    \BODY
+    \BODY%
 }%
 
 %\newsavebox{\songbox}

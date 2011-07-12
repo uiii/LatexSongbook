@@ -40,12 +40,12 @@ def convert(inputfilename, outputfilename):
 
     for line in infile:
         line = line.replace("\n", "")
-        if line == "":
+        if re.match("^[ \n\t]*$", line):
             continue
 
         if line[0] == ":":
             # chord line 
-            chordlist = re.findall("([ ]+|[^ ]+)", line[1:])
+            chordlist = re.findall("([ ]+|[^: ]+)", line[1:])
 
             skip = 1
             chords = []
@@ -56,6 +56,10 @@ def convert(inputfilename, outputfilename):
                     chord = formatChord(item)
                     chords.append((skip, chord))
                     skip += len(item)
+
+            if line[1] == ":":
+                output += "}}\n\t\\Chords {{{0}".format(" ".join([item[1] for item in chords]))
+                chords = []
 
 #print("chords: " + str(chords))
 
