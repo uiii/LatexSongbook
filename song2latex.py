@@ -16,6 +16,13 @@ class SyntaxError(Exception):
     def __str__(self):
         return "[" + self.filename + ":" + str(self.lineNumber) + "] Sytax error: " + self.error + ": " + self.line
 
+def contains(list, item):
+    try:
+        list.index(item)
+        return True
+    except ValueError:
+        return False
+
 def convert(inputfilename, outputfilename):
     infile = open(inputfilename)
 
@@ -36,6 +43,7 @@ def convert(inputfilename, outputfilename):
 
     output = "\\begin{{song}}{{{0}}}{{{1}".format(songtitle, songauthor)
 
+    chordList = [];
     chords = []
 
     for line in infile:
@@ -55,10 +63,12 @@ def convert(inputfilename, outputfilename):
                 else:
                     chord = formatChord(item)
                     chords.append((skip, chord))
+                    if not contains(chordList, chord):
+                        chordList.append(chord)
                     skip += len(item)
 
             if line[1] == ":":
-                output += "}}\n\t\\Chords {{{0}".format(" ".join([item[1] for item in chords]))
+                output += "}}\n\t\\Chords {{{0}".format(",".join([item[1] for item in chords]))
                 chords = []
 
 #print("chords: " + str(chords))
@@ -89,6 +99,7 @@ def convert(inputfilename, outputfilename):
                 line = re.sub("^[ ]+([^ ].*)", "\\1", line)
                 output += "\\n\n\t{0}".format(line)
 
+    output += "}}\n\t\\ChordDiagrams {{{0}".format(",".join(chordList))
     output += "}\n\\end{song}"
 
     output = re.sub("((\[:)|(:\]))", "$\\1$", output)
@@ -117,13 +128,24 @@ def makeFileName(str):
     return filename
             
 def formatChord(str):
-#re.sub("^([A-H])(|#|b)(|[4,5,6,7,9,11,13]+(\+|\-)?(/[4,5,9](\+|\-)?)?)"
-#chord = re.sub("^([a-hA-H])(|#|b)(|[0-9\+\-/]+)(|[a-z]+)(|[0-9\+\-/]+)$", "\\1^{\\2\\3}\\4^{\\5}", str)
-    chord = re.sub("^([A-H])(|#|b)(|mi|dim)(|[0-9\+\-\/]+(|maj|sus)(|/5[\+\-]))(|add[0-9]+)(|/[A-H])$", "\\1^{\\2}\\3^{\\4\\7}\\8", str)
-    chord = re.sub("\^{}", "", chord)
-    chord = re.sub("}\^{", "", chord)
-    chord = re.sub("#", "\\sharp", chord)
-    chord = re.sub("b", "\\flat", chord)
+    chord = str
+#chord = re.sub("^([A-H])(|#|b)(|mi|dim)(|[0-9\+\-\/]+(|maj|sus)(|/5[\+\-]))(|add[0-9]+)(|/[A-H])$", "\\1^{\\2}\\3^{\\4\\7}\\8", chord)
+#chord = re.sub("\^{}", "", chord)
+#chord = re.sub("}\^{", "", chord)
+    chord = re.sub("2", "Two", chord)
+    chord = re.sub("4", "Four", chord)
+    chord = re.sub("5", "Five", chord)
+    chord = re.sub("6", "Six", chord)
+    chord = re.sub("7", "Seven", chord)
+    chord = re.sub("9", "Nine", chord)
+    chord = re.sub("11", "Eleven", chord)
+    chord = re.sub("13", "Thirteen", chord)
+    chord = re.sub("\+", "Plus", chord)
+    chord = re.sub("\-", "Minus", chord)
+    chord = re.sub("\/", "Over", chord)
+    chord = re.sub("#", "is", chord)
+    chord = re.sub("(E|A)b", "\\1s", chord)
+    chord = re.sub("b", "es", chord)
     return chord
 
 def applyChords(line, chords):

@@ -19,14 +19,15 @@
 \ExecuteOptions{a4paper}
 \ProcessOptions\relax
 
-\RequirePackage[hscale=0.75, vscale=.9, vcentering=true]{geometry}
+\RequirePackage[hscale=0.76, vscale=.9, vcentering=true]{geometry}
 \RequirePackage{environ}
 \RequirePackage{graphics}
 \RequirePackage{calc}
-\RequirePackage[absolute, showboxes]{textpos}
+\RequirePackage[absolute]{textpos}
 \RequirePackage{gchords}
 \RequirePackage{needspace}
 \RequirePackage{xstring}
+\RequirePackage{arrayjob}
 
 \renewcommand{\normalsize}{\fontsize{9pt}{10pt}\selectfont}
 \DeclareMathSizes{9}{8}{8}{8}
@@ -40,19 +41,22 @@
 
 \newsavebox{\sectionbox}
 
+\newcounter{versecounter}%
+\newcounter{diff}%
+
 \newcommand{\section}[2]{%
     \savebox{\sectionbox}{%
         \begin{minipage}{\textwidth}%
+            \setcounter{diff}{0}%
             \par\noindent\llap{{\bfseries #1}\hspace{0.6em}}\ignorespaces#2%
         \end{minipage}%
     }%
 
     \begin{needspace}{\dimexpr\ht\sectionbox+\dp\sectionbox}%
-        \usebox{\sectionbox}%
+        \setcounter{diff}{0}%
+        \par\noindent\llap{{\bfseries #1}\hspace{0.6em}}\ignorespaces#2%
     \end{needspace}%
 }%
-
-\newcounter{versecounter}
 
 \newcommand{\Verse}[1]{%
     \section{\arabic{versecounter}.}{#1}%
@@ -79,32 +83,38 @@
     \section{#1.}{#2}%
 }%
 
-\newcommand{\clearChord}[1]{%
-    \StrSubstitute{#1}{ }{\;\:}[\cleared]%
-    %\StrSubstitute{\cleared}{\#}{\sharp}[\cleared]%
-    %\StrSubstitute{\cleared}{&}{\flat}[\cleared]%
-    \cleared%
+%\newcommand{\clearChord}[1]{%
+%    \StrSubstitute{#1}{ }{\;\:}[\cleared]%
+%    %\StrSubstitute{\cleared}{\#}{\sharp}[\cleared]%
+%    %\StrSubstitute{\cleared}{&}{\flat}[\cleared]%
+%    \cleared%
+%}%
+
+\newcommand{\chordMark}[1]{%
+    \@ifundefined{chord#1}{%
+        \ClassError{songbook}{%
+            Unknown chord #1%
+        }{%
+            Command 'chord#1' is no defined! Please define it.%
+        }%
+    }{%
+        $\mathbf{\csname chord#1\endcsname}$%
+    }%
 }%
 
 \newcommand{\Chords}[1]{%
-    \section{}{$\mathbf{\clearChord{#1}}$}%
+    \section{}{%
+        \makeatletter%
+        \@for\ch:=#1\do{%
+            \chordMark{\ch}$\;\:$%
+        }%
+        \makeatother%
+    }%
+    %\section{}{$\mathbf{\clearChord{#1}}$}%
 }%
-
-\catcode`\|=13
-%\def|#1|{%
-%    \raisebox{4.5ex}{%
-%        \makebox[0em][l]{%
-%            \raisebox{-2.5ex}[0ex][0ex]{%
-%                $\mathbf{#1}$%
-%            }%
-%        }%
-%    }%
-%}%
 
 \newsavebox{\chordbox}%
 \newsavebox{\textbox}%
-\newcounter{diff}%
-\setcounter{diff}{0}%
 
 \newcommand{\spaceletter}{ }%
 \newcommand{\leftletter}{ }%
@@ -124,10 +134,16 @@
     \fi%
 }%
 
+\newcommand{\n}{%
+    \\%
+    \setcounter{diff}{0}%
+}%
+
+\catcode`\|=13%
 \def|#1|#2|{%
     \savebox{\joinbox}{--}%
     \StrLeft{#2}{1}[\rightletter]%
-    \savebox{\chordbox}{$\mathbf{\clearChord{#1}}$}%
+    \savebox{\chordbox}{\chordMark{#1}}%
     \savebox{\textbox}{#2}%
     \ifnum\value{diff} > 0%
         \IfStrEq{\leftletter}{\spaceletter}{%
@@ -158,18 +174,47 @@
     \usebox{\textbox}%
     \setcounter{diff}{\wd\chordbox+200000-\wd\textbox}%
     \StrRight{#2}{1}[\leftletter]%
-    %\renewcommand{\leftletter}{\StrRight{#2}{1}}%
 }%
 
-\newcommand{\n}{%
-    \\%
-    \setcounter{diff}{0}%
+\def\chordsize{1.8mm}
+\def\topfretsiz{0.45mm}
+
+\input{chords}
+\newcommand{\chordDiagram}[1]{%
+    %\expandafter \ifx \csname chord#1\endcsname je \else neni \fi%
+    \@ifundefined{chord#1Diagram}{%
+        \ClassError{songbook}{%
+            Unknown chord #1%
+        }{%
+            Diagram for chord #1 is not defined!%
+        }%
+    }{%
+        %\upchord{\csname chord#1\endcsname}%
+        \csname chord#1Diagram\endcsname%
+    }%
+}%
+
+\newcounter{chordsXPosition}
+\newcounter{chordsYPosition}
+\setcounter{chordsXPosition}{\paperwidth-1000000}
+\setcounter{chordsYPosition}{(\paperheight+\textheight)/2}
+
+\newcommand{\ChordDiagrams}[1]{%
+    \makeatletter%
+
+    \begin{textblock*}{2900000sp}[1,1](\value{chordsXPosition}sp, \value{chordsYPosition}sp)%
+        \setlength{\parskip}{0ex}%
+        \noindent%
+        \@for\ch:=#1\do{%
+            \\\chordDiagram{\ch}%
+        }%
+    \end{textblock*}%
+    \makeatother
 }%
 
 \NewEnviron{song}[2]{%
     \clearpage%
     \setcounter{versecounter}{1}%
-    \setcounter{diff}{0}%
     \setlength{\parskip}{2.4ex}%
 
     \noindent%
