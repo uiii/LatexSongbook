@@ -36,12 +36,14 @@ if __name__ == "__main__":
         listfile = open(os.path.join(outputdir, "songlist.tex"), "w")
         for song in outputlist:
             listfile.write("\\input{{{0}}}\n".format(song[1]))
+        listfile.close()
 
         os.system(
                 "cd " + outputdir +
                 "&& latex2pdf songbook.tex"
                 "&& pdfnup songbook.pdf --nup 2x1"
                 "&& mv songbook-nup.pdf songbook.pdf"
+                "&& evince songbook.pdf"
         )
     
     rundir = os.path.dirname(sys.argv[0])
