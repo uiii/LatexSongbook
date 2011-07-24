@@ -21,13 +21,11 @@
 
 \RequirePackage[hscale=0.76, vscale=.9, vcentering=true]{geometry}
 \RequirePackage{environ}
-\RequirePackage{graphics}
 \RequirePackage{calc}
 \RequirePackage[absolute]{textpos}
 \RequirePackage{gchords}
 \RequirePackage{needspace}
 \RequirePackage{xstring}
-\RequirePackage{arrayjob}
 
 \renewcommand{\normalsize}{\fontsize{10pt}{1.15em}\selectfont}
 \DeclareMathSizes{10}{8}{8}{8}

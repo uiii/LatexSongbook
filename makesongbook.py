@@ -42,7 +42,6 @@ if __name__ == "__main__":
                 "&& latex2pdf songbook.tex"
                 "&& pdfnup songbook.pdf --nup 2x1"
                 "&& mv songbook-nup.pdf songbook.pdf"
-                "&& evince songbook.pdf"
         )
     
     rundir = os.path.dirname(sys.argv[0])
