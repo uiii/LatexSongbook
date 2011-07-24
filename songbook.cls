@@ -29,8 +29,8 @@
 \RequirePackage{xstring}
 \RequirePackage{arrayjob}
 
-\renewcommand{\normalsize}{\fontsize{9pt}{10pt}\selectfont}
-\DeclareMathSizes{9}{8}{8}{8}
+\renewcommand{\normalsize}{\fontsize{10pt}{1.15em}\selectfont}
+\DeclareMathSizes{10}{8}{8}{8}
 
 \newcommand{\titlefont}{\fontsize{14.4pt}{17pt}\fontseries{bx}\selectfont}
 \newcommand{\authorfont}{\fontsize{12pt}{15pt}\fontseries{m}\fontshape{it}\selectfont}
@@ -141,9 +141,19 @@
 
 \catcode`\|=13%
 \def|#1|#2|{%
+    \StrBetween{#1}{(}{)}[\altChord]%
+    \StrDel{#1}{(\altChord)}[\mainChord]%
+    \IfStrEq{\altChord}{}{%
+        \savebox{\chordbox}{\chordMark{\mainChord}}%
+    }{%
+        \IfStrEq{\mainChord}{}{%
+            \savebox{\chordbox}{$($\chordMark{\altChord}$)$}%
+        }{%
+            \savebox{\chordbox}{\chordMark{\mainChord}$($\chordMark{\altChord}$)$}%
+        }%
+    }%
     \savebox{\joinbox}{--}%
     \StrLeft{#2}{1}[\rightletter]%
-    \savebox{\chordbox}{\chordMark{#1}}%
     \savebox{\textbox}{#2}%
     \ifnum\value{diff} > 0%
         \IfStrEq{\leftletter}{\spaceletter}{%

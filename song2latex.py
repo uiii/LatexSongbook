@@ -63,8 +63,14 @@ def convert(inputfilename, outputfilename):
                 else:
                     chord = formatChord(item)
                     chords.append((skip, chord))
-                    if not contains(chordList, chord):
-                        chordList.append(chord)
+                    nChord = re.sub("([^\(\)]*)(|\([^\(\)]+\))", "\\1", chord)
+                    altChord = re.sub("([^\(\)]*)(|\([^\(\)]+\))", "\\2", chord)
+
+                    for ch in re.sub("(\(|\))", "|", chord).split("|"):
+                        if not ch == "":
+                            if not contains(chordList, ch):
+                                chordList.append(ch)
+
                     skip += len(item)
 
             if line[1] == ":":
