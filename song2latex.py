@@ -51,6 +51,10 @@ def convert(inputfilename, outputfilename):
         if re.match("^[ \n\t]*$", line):
             continue
 
+        line = re.sub("\[:", "𝄆 ", line)
+        line = re.sub(":\]", "𝄇 ", line)
+        line = re.sub("\.\.\.", "…  ", line)
+
         if line[0] == ":":
             # chord line 
             chordlist = re.findall("([ ]+|[^: ]+)", line[1:])
@@ -82,7 +86,12 @@ def convert(inputfilename, outputfilename):
         else:
             line = applyChords(line, chords)
 
-            if re.match("^[0-9]+\.[ ]*[^ ].*", line):
+            if re.match("^\.[ ]*[^ ].*", line):
+#print("nolabel: " + line)
+                line = re.sub("^\.[ ]*([^ ].*)$", "\\1", line)
+                output += "}}\n\t\\NoLabel {{{0}".format(line)
+
+            elif re.match("^[0-9]+\.[ ]*[^ ].*", line):
 #print("verse: " + line)
                 line = re.sub("^[0-9]+\.[ ]*([^ ].*)$", "\\1", line)
                 output += "}}\n\t\\Verse {{{0}".format(line)
@@ -108,10 +117,13 @@ def convert(inputfilename, outputfilename):
     output += "}}\n\t\\ChordDiagrams {{{0}".format(",".join(chordList))
     output += "}\n\\end{song}"
 
-    output = re.sub("((\[:)|(:\]))", "$\\1$", output)
+    output = re.sub("𝄆", "$[:$", output)
+    output = re.sub("𝄇", "$:]$", output)
+    output = re.sub("…", "\Dots", output)
     output = re.sub("\*", "$\\star$", output)
+    output = re.sub("&", "\\&", output)
     #output = re.sub("\|[ ]*\|", "\\;", output)
-    output = re.sub("\"([^\"]*)\"", "\\uv{\\1}", output)
+    output = re.sub("\"([^\"]*)\"", "„\\1“", output)
 #print(output)
 
     if outputfilename == None:
@@ -124,7 +136,7 @@ def convert(inputfilename, outputfilename):
     outfile = open(outputfilename, 'w')
     outfile.write(output)
 
-    return (songtitle + " " + songauthor, makeFileName(songtitle + "." + songauthor))
+    return (songtitle, songauthor, makeFileName(songtitle + "." + songauthor))
 
 def makeFileName(str):
     filename = unicodedata.normalize('NFKD', str).encode('ASCII', 'ignore').decode()

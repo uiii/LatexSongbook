@@ -19,16 +19,20 @@
 \ExecuteOptions{a4paper}
 \ProcessOptions\relax
 
-\RequirePackage[hscale=0.76, vscale=.9, vcentering=true]{geometry}
+%\RequirePackage[hscale=0.79, vscale=.93, vcentering=true]{geometry}
+\RequirePackage[hscale=0.76, vscale=.905, vcentering=true]{geometry}
 \RequirePackage{environ}
 \RequirePackage{calc}
 \RequirePackage[absolute]{textpos}
 \RequirePackage{gchords}
 \RequirePackage{needspace}
 \RequirePackage{xstring}
+\RequirePackage{graphicx}
+\RequirePackage{multicol}
 
-\renewcommand{\normalsize}{\fontsize{10pt}{1.15em}\selectfont}
-\DeclareMathSizes{10}{8}{8}{8}
+\renewcommand{\normalsize}{\fontsize{11pt}{1.15em}\selectfont}
+\DeclareMathSizes{11}{9}{9}{9}
+%\DeclareMathSizes{11}{10}{10}{10}
 
 \newcommand{\titlefont}{\fontsize{14.4pt}{17pt}\fontseries{bx}\selectfont}
 \newcommand{\authorfont}{\fontsize{12pt}{15pt}\fontseries{m}\fontshape{it}\selectfont}
@@ -42,17 +46,20 @@
 \newcounter{versecounter}%
 \newcounter{diff}%
 
+\newcommand{\sectionContent}[2]{%
+    \setcounter{diff}{0}%
+    \par\noindent\llap{{\fontsize{10pt}{1.15em}\selectfont\bfseries #1}\hspace{0.6em}}\ignorespaces#2%
+}%
+
 \newcommand{\section}[2]{%
     \savebox{\sectionbox}{%
         \begin{minipage}{\textwidth}%
-            \setcounter{diff}{0}%
-            \par\noindent\llap{{\bfseries #1}\hspace{0.6em}}\ignorespaces#2%
+            \sectionContent{#1}{#2}
         \end{minipage}%
     }%
 
     \begin{needspace}{\dimexpr\ht\sectionbox+\dp\sectionbox}%
-        \setcounter{diff}{0}%
-        \par\noindent\llap{{\bfseries #1}\hspace{0.6em}}\ignorespaces#2%
+        \sectionContent{#1}{#2}
     \end{needspace}%
 }%
 
@@ -79,6 +86,10 @@
 
 \newcommand{\Label}[2]{%
     \section{#1.}{#2}%
+}%
+
+\newcommand{\NoLabel}[1]{%
+    \section{}{#1}%
 }%
 
 %\newcommand{\clearChord}[1]{%
@@ -174,7 +185,7 @@
     \fi%
     \raisebox{4.5ex}{%
         \makebox[0em][l]{%
-            \raisebox{-2.5ex}[0ex][0ex]{%
+            \raisebox{-2.35ex}[0ex][0ex]{%
                 \usebox{\chordbox}%
             }%
         }%
@@ -184,10 +195,15 @@
     \StrRight{#2}{1}[\leftletter]%
 }%
 
+\newcommand{\Instrument}{}
+
+\newcommand{\setInstrument}[1]{%
+    \renewcommand{\Instrument}{#1}%
+}%
+
 \def\chordsize{1.8mm}
 \def\topfretsiz{0.45mm}
 
-\input{chords}
 \newcommand{\chordDiagram}[1]{%
     %\expandafter \ifx \csname chord#1\endcsname je \else neni \fi%
     \@ifundefined{chord#1Diagram}{%
@@ -204,32 +220,53 @@
 
 \newcounter{chordsXPosition}
 \newcounter{chordsYPosition}
-\setcounter{chordsXPosition}{\paperwidth-1000000}
+\setcounter{chordsXPosition}{\paperwidth-700000}
 \setcounter{chordsYPosition}{(\paperheight+\textheight)/2}
 
-\newcommand{\ChordDiagrams}[1]{%
-    \makeatletter%
+\newsavebox{\chordDiagramsBox}
 
+\newcommand{\ChordDiagramsToPrint}{}%
+
+\newcommand{\ChordDiagrams}[1]{%
+    \renewcommand{\ChordDiagramsToPrint}{#1}%
+}%
+
+\newcommand{\PrintChordDiagrams}{%
     \begin{textblock*}{2900000sp}[1,1](\value{chordsXPosition}sp, \value{chordsYPosition}sp)%
+        %\noindent%
+        %\usebox{\chordDiagramsBox}%
         \setlength{\parskip}{0ex}%
         \noindent%
-        \@for\ch:=#1\do{%
+        \@for\ch:=\ChordDiagramsToPrint\do{%
             \\\chordDiagram{\ch}%
         }%
     \end{textblock*}%
-    \makeatother
+
+    \savebox{\chordDiagramsBox}{}%
 }%
+
+\newcommand{\Dots}{\dots$\;$}
 
 \NewEnviron{song}[2]{%
     \clearpage%
     \setcounter{versecounter}{1}%
-    \setlength{\parskip}{2.4ex}%
+    \setlength{\parskip}{2.2ex}%
 
     \noindent%
     \songtitle{#1}%
     \hfill\songauthor{#2}%
-    \vspace{1.5ex}\par%
+    \vspace{0.5ex}\par%
     \BODY%
+
+    \IfStrEq{\Instrument}{}{}{%
+        \begin{textblock*}{.5\paperwidth}[1,1](\paperwidth-1000000sp, \paperheight-1300000sp)%
+            \vfill%
+            \hfill%
+            \includegraphics[width=.5\paperwidth,height=.5\paperheight, keepaspectratio]{\Instrument.png}%
+        \end{textblock*}%
+    }%
+
+    \PrintChordDiagrams
 }%
 
 %\newsavebox{\songbox}
