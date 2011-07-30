@@ -231,18 +231,60 @@
     \renewcommand{\ChordDiagramsToPrint}{#1}%
 }%
 
+\newcounter{chordsCount}%
+\newcounter{breakCount}%
+\newcounter{loopCount}%
+\newcounter{shift}%
 \newcommand{\PrintChordDiagrams}{%
+    \setcounter{chordsCount}{0}
+    \@for\ch:=\ChordDiagramsToPrint\do{%
+        \stepcounter{chordsCount}%
+    }%
+    \newcommand{\firstElevenChords}{%
+        \setcounter{breakCount}{\value{chordsCount}-10}
+        \setcounter{loopCount}{1}%
+        \@for\ch:=\ChordDiagramsToPrint\do{%
+            \ifnum\value{loopCount}<\value{breakCount}%
+                \\\chordDiagram{\ch}%
+            \fi%
+            \stepcounter{loopCount}%
+        }%
+    }%
+    \newcommand{\afterElevenChords}{%
+        \setcounter{breakCount}{\value{chordsCount}-11}
+        \setcounter{loopCount}{1}%
+        \@for\ch:=\ChordDiagramsToPrint\do{%
+            \ifnum\value{loopCount}>\value{breakCount}%
+                \\\chordDiagram{\ch}%
+            \fi%
+            \stepcounter{loopCount}%
+        }%
+    }%
+    \setcounter{shift}{0}%
+    \ifnum\value{chordsCount}>11\setcounter{shift}{2600000}\fi%
+    \begin{textblock*}{2900000sp}[1,1](\value{chordsXPosition}sp-\value{shift}sp, \value{chordsYPosition}sp)%
+        %\noindent%
+        %\usebox{\chordDiagramsBox}%
+        \setlength{\parskip}{0ex}%
+        \noindent%
+        \firstElevenChords%
+%        \@for\ch:=\ChordDiagramsToPrint\do{%
+%            \\\chordDiagram{\ch}%
+%        }%
+    \end{textblock*}%
+
     \begin{textblock*}{2900000sp}[1,1](\value{chordsXPosition}sp, \value{chordsYPosition}sp)%
         %\noindent%
         %\usebox{\chordDiagramsBox}%
         \setlength{\parskip}{0ex}%
         \noindent%
-        \@for\ch:=\ChordDiagramsToPrint\do{%
-            \\\chordDiagram{\ch}%
-        }%
+        \afterElevenChords%
+%        \@for\ch:=\ChordDiagramsToPrint\do{%
+%            \\\chordDiagram{\ch}%
+%        }%
     \end{textblock*}%
 
-    \savebox{\chordDiagramsBox}{}%
+    %\savebox{\chordDiagramsBox}{}%
 }%
 
 \newcommand{\Dots}{\dots$\;$}
