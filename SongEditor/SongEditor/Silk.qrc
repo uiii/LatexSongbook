@@ -1,0 +1,91 @@
+<RCC>
+    <qresource prefix="/icons/Silk_">
+        <file alias="index.theme">icons/Silk/index.theme</file>
+        <file alias="16x16/application-exit.png">icons/Silk/stop.png</file>
+        <file alias="16x16/document-open.png">icons/Silk/folder_page.png</file>
+        <file alias="16x16/document-save.png">icons/Silk/disk.png</file>
+        <file alias="16x16/folder.png">icons/Silk/folder.png</file>
+        <file alias="16x16/document-open-recent.png">icons/Silk/clock.png</file>
+        <file alias="16x16/document-open-remote.png">icons/Silk/page_link.png</file>
+        <file alias="16x16/edit-delete.png">icons/Silk/delete.png</file>
+        <file alias="16x16/edit-clear-locationbar-rtl.png">icons/Silk/delete.png</file>
+        <file alias="16x16/edit-find.png">icons/Silk/find.png</file>
+        <file alias="16x16/edit-copy.png">icons/Silk/page_copy.png</file>
+        <file alias="16x16/edit-undo.png">icons/Silk/arrow_undo.png</file>
+        <file alias="16x16/format-list-ordered.png">icons/Silk/text_list_numbers.png</file>
+        <file alias="16x16/speaker.png">icons/Silk/sound.png</file>
+        <file alias="16x16/player-volume.png">icons/Silk/sound.png</file>
+        <file alias="16x16/audio-volume-muted.png">icons/Silk/sound_mute.png</file>
+        <file alias="16x16/audio-volume-low.png">icons/Silk/sound_low.png</file>
+        <file alias="16x16/audio-volume-medium.png">icons/Silk/sound.png</file>
+        <file alias="16x16/audio-volume-high.png">icons/Silk/sound.png</file>
+        <file alias="16x16/player-time.png">icons/Silk/time.png</file>
+        <file alias="16x16/view-media-equalizer.png">icons/Silk/control_equalizer_blue.png</file>
+        <file alias="16x16/go-next.png">icons/Silk/resultset_next.png</file>
+        <file alias="16x16/go-previous.png">icons/Silk/resultset_previous.png</file>
+        <file alias="16x16/process-stop.png">icons/Silk/cancel.png</file>
+        <file alias="16x16/view-refresh.png">icons/Silk/arrow_refresh.png</file>
+        <file alias="16x16/go-home.png">icons/Silk/house.png</file>
+        <file alias="16x16/go-jump-locationbar.png">icons/Silk/tick.png</file>
+        <file alias="16x16/go-jump.png">icons/Silk/bullet_go.png</file>
+        <file alias="16x16/go-down.png">icons/Silk/arrow_down.png</file>
+        <file alias="16x16/go-down-search.png">icons/Silk/bullet_arrow_down.png</file>
+        <file alias="16x16/rating.png">icons/Silk/star.png</file>
+        <file alias="16x16/document-properties.png">icons/Silk/page_edit.png</file>
+        <file alias="16x16/tab-new.png">icons/Silk/tab_add.png</file>
+        <file alias="16x16/window-close.png">icons/Silk/application_delete.png</file>
+        <file alias="16x16/window-duplicate.png">icons/Silk/application_double.png</file>
+        <file alias="16x16/mail-mark-unread.png">icons/Silk/email.png</file>
+        <file alias="16x16/tools-report-bug.png">icons/Silk/bug.png</file>
+        <file alias="16x16/format-text-underline.png">icons/Silk/text_underline.png</file>
+        <file alias="16x16/media-playback-pause.png">icons/Silk/control_pause_blue.png</file>
+        <file alias="16x16/media-playback-start.png">icons/Silk/control_play_blue.png</file>
+        <file alias="16x16/media-playback-stop.png">icons/Silk/control_stop_blue.png</file>
+        <file alias="16x16/media-skip-backward.png">icons/Silk/control_start_blue.png</file>
+        <file alias="16x16/media-skip-forward.png">icons/Silk/control_end_blue.png</file>
+        <file alias="16x16/media-seek-backward.png">icons/Silk/control_rewind_blue.png</file>
+        <file alias="16x16/media-seek-forward.png">icons/Silk/control_fastforward_blue.png</file>
+        <file alias="16x16/view-fullscreen.png">icons/Silk/arrow_out.png</file>
+        <file alias="16x16/help-about.png">icons/Silk/information.png</file>
+        <file alias="16x16/help-hint.png">icons/Silk/user_comment.png</file>
+        <file alias="16x16/list-add.png">icons/Silk/page_add.png</file>
+        <file alias="16x16/list-remove.png">icons/Silk/page_delete.png</file>
+        <file alias="16x16/preferences-desktop-display.png">icons/Silk/monitor.png</file>
+        <file alias="16x16/preferences-desktop-keyboard.png">icons/Silk/keyboard.png</file>
+        <file alias="16x16/preferences-system-windows.png">icons/Silk/application_double.png</file>
+        <file alias="16x16/preferences-plugin.png">icons/Silk/plugin.png</file>
+        <file alias="16x16/internet-web-browser.png">icons/Silk/world_go.png</file>
+        <file alias="16x16/preferences-system.png">icons/Silk/wrench.png</file>
+        <file alias="16x16/preferences-desktop.png">icons/Silk/monitor.png</file>
+        <file alias="16x16/system-help.png">icons/Silk/information.png</file>
+        <file alias="16x16/media-optical.png">icons/Silk/dvd.png</file>
+        <file alias="16x16/audio-x-generic.png">icons/Silk/music.png</file>
+        <file alias="16x16/video-x-generic.png">icons/Silk/film.png</file>
+        <file alias="16x16/x-office-address-book.png">icons/Silk/book.png</file>
+        <file alias="16x16/text-x-script.png">icons/Silk/script_code.png</file>
+        <file alias="16x16/media-playlist-repeat.png">icons/Silk/control_repeat_blue.png</file>
+        <file alias="16x16/media-playlist-shuffle.png">icons/Silk/arrow_switch.png</file>
+        <file alias="16x16/dialog-warning.png">icons/Silk/bullet_error.png</file>
+        <file alias="16x16/text-x-log.png">icons/Silk/script_edit.png</file>
+    </qresource>
+    <qresource prefix="/icons/Silk/16x16">
+        <file alias="edit-cut.png">icons/Silk/cut_red.png</file>
+        <file alias="document-save.png">icons/Silk/disk.png</file>
+        <file alias="application-exit.png">icons/Silk/door_out.png</file>
+        <file>icons/Silk/folder.png</file>
+        <file>icons/Silk/folder_page.png</file>
+        <file alias="document-open.png">icons/Silk/folder_page_white.png</file>
+        <file alias="document-new.png_">icons/Silk/page_white.png</file>
+        <file alias="document-print-preview.png_">icons/Silk/page_white_acrobat.png</file>
+        <file alias="edit-copy.png">icons/Silk/page_white_copy.png</file>
+        <file>icons/Silk/tick.png</file>
+        <file alias="document-new.png">icons/Silk/page_white_star.png</file>
+        <file alias="edit-redo.png">icons/Silk/arrow_redo.png</file>
+        <file alias="edit-undo.png">icons/Silk/arrow_undo.png</file>
+        <file alias="edit-paste.png">icons/Silk/paste_plain.png</file>
+        <file alias="document-print-preview.png">icons/Silk/eye.png</file>
+    </qresource>
+    <qresource prefix="/icons/Silk">
+        <file alias="index.theme">icons/Silk/index.theme</file>
+    </qresource>
+</RCC>
