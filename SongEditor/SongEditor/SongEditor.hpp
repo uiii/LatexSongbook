@@ -8,6 +8,7 @@ namespace Ui {
 }
 
 class QFileDialog; // forward declaration
+class QTextDocument; // forward declaration
 
 class SongEditor : public QMainWindow
 {
@@ -17,18 +18,28 @@ public:
     explicit SongEditor(QWidget *parent = 0);
     ~SongEditor();
 
+    bool continueIfUnsaved();
+
+    void closeEvent(QCloseEvent *event);
+
 public slots:
     void newSong();
     void openSong(QString fileName = QString());
-    void saveSong();
-    void saveAsSong(QString fileName = QString());
+    bool saveSong();
+    bool saveAsSong(QString fileName = QString());
+
+    void setAsSaved(bool flag);
+
+    void updateSongState();
 
     void updateWindowTitle();
 
 private:
     QString songFileName_;
 
-    bool isUnsaved_;
+    QTextDocument* document_;
+
+    bool isSaved_;
 
     QString fileFilter_;
     QString lastAccessedDir_;
