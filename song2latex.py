@@ -190,6 +190,6 @@ if __name__ == "__main__":
             outputfile = sys.argv[2]
 
         try:
-            convert(intputfile, outputfile)
+            convert(inputfile, outputfile)
         except Exception as e:
             print(e)
