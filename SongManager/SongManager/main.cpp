@@ -1,5 +1,5 @@
 #include <QtGui/QApplication>
-#include "songmanager.h"
+#include "SongManager.h"
 
 int main(int argc, char *argv[])
 {

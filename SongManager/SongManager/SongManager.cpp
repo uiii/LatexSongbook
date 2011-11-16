@@ -1,5 +1,5 @@
-#include "songmanager.h"
-#include "ui_songmanager.h"
+#include "SongManager.h"
+#include "ui_SongManager.h"
 
 SongManager::SongManager(QWidget *parent) :
     QMainWindow(parent),
