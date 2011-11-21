@@ -1,0 +1,17 @@
+--- orig/lib/wrapper.c
++++ mod/lib/wrapper.c
+@@ -128,9 +128,13 @@
+ 			snprintf(savepath, MAXPATHLEN, "%s/%s", savedir,
+ 				 dent->d_name);
+ 
++#ifndef WIN32
+ 		if (lstat(realpath, &s) != 0)
+ 			return -1;
+-
++#else
++		if (stat(realpath, &s) != 0)
++			return -1;
++#endif
+ 		if (S_ISDIR(s.st_mode))
+ 		{
+ 			if (tar_append_tree(t, realpath,

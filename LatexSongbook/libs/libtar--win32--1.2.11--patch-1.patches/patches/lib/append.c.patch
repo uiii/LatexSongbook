@@ -1,0 +1,26 @@
+--- orig/lib/append.c
++++ mod/lib/append.c
+@@ -69,7 +69,11 @@
+ 	       (savename ? savename : "[NULL]"));
+ #endif
+ 
++#ifdef WIN32
++	if (stat(realname, &s) != 0)
++#else
+ 	if (lstat(realname, &s) != 0)
++#endif
+ 	{
+ #ifdef DEBUG
+ 		perror("lstat()");
+@@ -143,7 +147,11 @@
+ 	/* check if it's a symlink */
+ 	if (TH_ISSYM(t))
+ 	{
++#ifdef WIN32
++		i = -1;
++#else
+ 		i = readlink(realname, path, sizeof(path));
++#endif
+ 		if (i == -1)
+ 			return -1;
+ 		if (i >= MAXPATHLEN)

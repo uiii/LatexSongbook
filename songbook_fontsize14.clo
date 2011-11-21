@@ -1,9 +1,0 @@
-\newcommand{\basefontsize}{14.4}
-
-\newcommand{\normalfontsize}{\fontsize{14.4pt}{15pt}}
-\newcommand{\titlefontsize}{\fontsize{17.28pt}{0pt}}
-\newcommand{\authorfontsize}{\fontsize{14.4pt}{0pt}}
-\newcommand{\sectionfontsize}{\fontsize{14pt}{0pt}}
-\newcommand{\indexfontsize}{\fontsize{12pt}{13pt}}
-
-\newcommand{\chordfontsize}{12}

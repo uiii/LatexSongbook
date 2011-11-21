@@ -1,0 +1,28 @@
+--- orig/lib/libtar.h
++++ mod/lib/libtar.h
+@@ -15,7 +15,12 @@
+ 
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#ifdef WIN32
++/* use shipped tar.h */
++#include "tar.h"
++#else
+ #include <tar.h>
++#endif
+ 
+ #include <libtar_listhash.h>
+ 
+@@ -163,8 +168,12 @@
+ 			 || (S_ISREG((mode_t)oct_to_int((t)->th_buf.mode)) \
+ 			     && (t)->th_buf.typeflag != LNKTYPE))
+ #define TH_ISLNK(t)	((t)->th_buf.typeflag == LNKTYPE)
++#ifdef S_ISLNK
+ #define TH_ISSYM(t)	((t)->th_buf.typeflag == SYMTYPE \
+ 			 || S_ISLNK((mode_t)oct_to_int((t)->th_buf.mode)))
++#else
++#define TH_ISSYM(t)     ((t)->th_buf.typeflag == SYMTYPE)
++#endif
+ #define TH_ISCHR(t)	((t)->th_buf.typeflag == CHRTYPE \
+ 			 || S_ISCHR((mode_t)oct_to_int((t)->th_buf.mode)))
+ #define TH_ISBLK(t)	((t)->th_buf.typeflag == BLKTYPE \

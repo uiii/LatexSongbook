@@ -1,0 +1,57 @@
+--- orig/lib/decode.c
++++ mod/lib/decode.c
+@@ -14,8 +14,10 @@
+ 
+ #include <stdio.h>
+ #include <sys/param.h>
++#ifndef WIN32
+ #include <pwd.h>
+ #include <grp.h>
++#endif
+ 
+ #ifdef STDC_HEADERS
+ # include <string.h>
+@@ -47,6 +49,7 @@
+ th_get_uid(TAR *t)
+ {
+ 	int uid;
++#ifndef WIN32
+ 	struct passwd *pw;
+ 
+ 	pw = getpwnam(t->th_buf.uname);
+@@ -54,6 +57,7 @@
+ 		return pw->pw_uid;
+ 
+ 	/* if the password entry doesn't exist */
++#endif
+ 	sscanf(t->th_buf.uid, "%o", &uid);
+ 	return uid;
+ }
+@@ -63,6 +67,7 @@
+ th_get_gid(TAR *t)
+ {
+ 	int gid;
++#ifndef WIN32
+ 	struct group *gr;
+ 
+ 	gr = getgrnam(t->th_buf.gname);
+@@ -70,6 +75,7 @@
+ 		return gr->gr_gid;
+ 
+ 	/* if the group entry doesn't exist */
++#endif
+ 	sscanf(t->th_buf.gid, "%o", &gid);
+ 	return gid;
+ }
+@@ -85,9 +91,11 @@
+ 	{
+ 		switch (t->th_buf.typeflag)
+ 		{
++#ifndef WIN32
+ 		case SYMTYPE:
+ 			mode |= S_IFLNK;
+ 			break;
++#endif
+ 		case CHRTYPE:
+ 			mode |= S_IFCHR;
+ 			break;
