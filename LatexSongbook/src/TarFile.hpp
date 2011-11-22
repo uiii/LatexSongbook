@@ -2,8 +2,10 @@
 #define TARFILE_HPP
 
 #include <QString>
+#include <QDateTime>
 
 #define TAR_HEADER_SIZE 512
+#define TAR_BLOCK_SIZE 512
 
 enum TarHeaderOffset
 {
@@ -17,7 +19,6 @@ enum TarHeaderOffset
     TYPEFLAG = 156,
     LINKNAME = 157,
     MAGIC = 257,
-    VERSION = 263,
     UNAME = 265,
     GNAME = 297,
     DEVMAJOR = 329,
@@ -36,7 +37,7 @@ enum TarHeaderSize
     CHKSUM_SIZE = 8,
     TYPEFLAG_SIZE = 1,
     LINKNAME_SIZE = 100,
-    MAGIC_SIZE = 6,
+    MAGIC_SIZE = 8,
     VERSION_SIZE = 2,
     UNAME_SIZE = 32,
     GNAME_SIZE = 32,
@@ -49,42 +50,26 @@ enum TarHeaderSize
 typedef QByteArray TarHeader;
 typedef QByteArray TarContent;
 
-/*struct TarHeader
-{
-    char name[100];
-    char mode[8];
-    char uid[8];
-    char gid[8];
-    char size[12];
-    char mtime[12];
-    char chksum[8];
-    char typeflag;
-    char linkname[100];
-    char magic[6];
-    char version[2];
-    char uname[32];
-    char gname[32];
-    char devmajor[8];
-    char devminor[8];
-    char prefix[155];
-    char padding[12];
-};*/
-
 class TarFile
 {
 public:
-    explicit TarFile();
+    explicit TarFile(const QString& name, const TarContent& content = TarContent());
+
+    const QString& name();
+    std::size_t size();
 
     TarHeader header();
     TarContent content();
 
-    void setHeader(std::size_t offset, const QByteArray& data);
     void setContent(const TarContent& content);
 
 public: /* static */
+    static TarFile fromHeader(const TarHeader& header);
     static TarFile fromFile(const QString& fileName);
 
 private:
+    TarFile();
+    void setHeader_(std::size_t offset, const QByteArray& data);
     void calculateChecksum_();
 
     TarHeader header_;

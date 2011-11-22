@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>493</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSong">
@@ -102,6 +102,7 @@
    <addaction name="separator"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="actionRedo"/>
   </widget>
   <action name="actionSaveAs">
    <property name="text">

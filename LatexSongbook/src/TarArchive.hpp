@@ -6,14 +6,13 @@
 
 #include "TarFile.hpp"
 
-#define TAR_BLOCK_SIZE 512
-
 class TarArchive
 {
 public:
     TarArchive(const QString& fileName);
 
-    void addFile(TarFile file);
+    void addFile(const TarFile& file);
+    void addFiles(const QList<TarFile>& file);
 
     void pack();
     void extract(const QString& path = ".");

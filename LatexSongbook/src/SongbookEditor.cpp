@@ -15,6 +15,8 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 
+#include "TarArchive.hpp"
+
 SongbookEditor::SongbookEditor(QWidget *parent) :
     QMainWindow(parent),
     isSaved_(true),
@@ -57,6 +59,8 @@ SongbookEditor::SongbookEditor(QWidget *parent) :
     connect(ui_->actionOpen, SIGNAL(activated()), this, SLOT(openSongbook()));
     connect(ui_->actionSave, SIGNAL(activated()), this, SLOT(saveSongbook()));
     connect(ui_->actionSaveAs, SIGNAL(activated()), this, SLOT(saveAsSongbook()));
+
+    connect(ui_->actionRedo, SIGNAL(activated()), this, SLOT(saveTarTest())); // TODO - remove
 
     newSongbook();
 }
@@ -229,4 +233,15 @@ void SongbookEditor::closeEvent(QCloseEvent *event)
     {
         event->ignore();
     }
+}
+
+void SongbookEditor::saveTarTest()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save TAR as ..."), lastAccessedDir_, fileFilter_);
+
+    TarArchive archive(fileName);
+    archive.addFile(TarFile("a", "ahoj"));
+    archive.addFile(TarFile("b", "nazdar"));
+    archive.addFile(TarFile("c", "cus"));
+    archive.pack();
 }

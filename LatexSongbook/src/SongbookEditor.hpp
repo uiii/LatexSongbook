@@ -34,6 +34,8 @@ public slots:
 
     void updateWindowTitle();
 
+    void saveTarTest(); // TODO - remove
+
 private:
     QString songbookFileName_;
 

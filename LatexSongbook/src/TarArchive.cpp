@@ -1,7 +1,6 @@
 #include "TarArchive.hpp"
 
 #include <QFileInfo>
-#include <QDataStream>
 
 TarArchive::TarArchive(const QString& fileName):
     archiveFile_(fileName)
@@ -12,9 +11,14 @@ TarArchive::TarArchive(const QString& fileName):
     }
 }
 
-void TarArchive::addFile(TarFile file)
+void TarArchive::addFile(const TarFile& file)
 {
     tarFiles_.append(file);
+}
+
+void TarArchive::addFiles(const QList<TarFile>& files)
+{
+    tarFiles_.append(files);
 }
 
 void TarArchive::pack()
@@ -24,15 +28,16 @@ void TarArchive::pack()
         return; // TODO error
     }
 
-    QDataStream output(&archiveFile_);
     for(TarFile& tarFile : tarFiles_)
     {
-        output << tarFile.header();
-        output << tarFile.content();
+        archiveFile_.write(tarFile.header());
+        archiveFile_.write(tarFile.content());
+        archiveFile_.write(QByteArray(TAR_BLOCK_SIZE - tarFile.content().size() % TAR_BLOCK_SIZE, '\0'));
     }
 
     QByteArray emptyBlock(TAR_BLOCK_SIZE, '\0');
-    output << emptyBlock << emptyBlock;
+    archiveFile_.write(emptyBlock);
+    archiveFile_.write(emptyBlock);
 
     archiveFile_.close();
 }
@@ -54,15 +59,31 @@ void TarArchive::load_()
 
     archiveFile_.reset();
 
-    TarFile tarFile;
-    QByteArray block;
-    block.reserve(512);
+    bool emptyBlock = false;
     while(! archiveFile_.atEnd())
     {
-        tarFile.setHeader(0, readBlock_(TAR_HEADER_SIZE));
+        QByteArray block = readBlock_(TAR_HEADER_SIZE);
 
-        // TODO zjistit z velikosti souboru kolik bloku nacist
-        //tarFile.content_ = readBlock_(TAR_BLOCK_SIZE);
+        if(block[0] == '\0')
+        {
+            if(emptyBlock)
+            {
+                break;
+            }
+            else
+            {
+                emptyBlock = true;
+                continue;
+            }
+        }
+
+
+        TarFile tarFile = TarFile::fromHeader(block);
+
+        TarContent content = readBlock_(tarFile.size());
+        readBlock_(TAR_BLOCK_SIZE - tarFile.size() % TAR_BLOCK_SIZE);
+
+        tarFile.setContent(content);
 
         tarFiles_.append(tarFile);
     }
@@ -73,10 +94,7 @@ void TarArchive::load_()
 QByteArray TarArchive::readBlock_(std::size_t size)
 {
     QByteArray block = archiveFile_.read(size);
-    if((std::size_t)block.size() < size)
-    {
-        block.append(QByteArray(block.size() % size, '\0'));
-    }
+    block.append(QByteArray(size - block.size(), '\0'));
 
     return block;
 }
