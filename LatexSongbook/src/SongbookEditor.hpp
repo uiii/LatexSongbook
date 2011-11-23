@@ -35,9 +35,14 @@ public slots:
     void updateWindowTitle();
 
     void saveTarTest(); // TODO - remove
+    void extractTarTest(); // TODO - remove
 
 private:
+    void makeTmpDir_();
+    void removeTmpDir_();
+
     QString songbookFileName_;
+    QString songbookTmpDir_;
 
     bool isSaved_;
 

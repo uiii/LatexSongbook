@@ -22,7 +22,8 @@ HEADERS  += src/LatexSongbook.hpp \
     src/SongEditor.hpp \
     src/SongbookEditor.hpp \
     src/TarFile.hpp \
-    src/TarArchive.hpp
+    src/TarArchive.hpp \
+    src/common.hpp
 
 FORMS    += ui/LatexSongbook.ui \
     ui/SongEditor.ui \
@@ -30,6 +31,7 @@ FORMS    += ui/LatexSongbook.ui \
 
 RESOURCES += \
     res/FreshFarm.qrc
+
 
 
 

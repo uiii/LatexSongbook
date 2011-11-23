@@ -55,7 +55,7 @@ class TarFile
 public:
     explicit TarFile(const QString& name, const TarContent& content = TarContent());
 
-    const QString& name();
+    QString name();
     std::size_t size();
 
     TarHeader header();

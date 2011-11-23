@@ -1,5 +1,6 @@
 #include "TarArchive.hpp"
 
+#include <QDir>
 #include <QFileInfo>
 
 TarArchive::TarArchive(const QString& fileName):
@@ -44,8 +45,24 @@ void TarArchive::pack()
 
 void TarArchive::extract(const QString &path)
 {
+    QDir dir(path);
+    if(! dir.exists())
+    {
+        QDir().mkpath(path);
+    }
+
     for(TarFile& tarFile : tarFiles_)
     {
+        QFile file(dir.filePath(tarFile.name()));
+
+        if(! file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            return; // TODO error
+        }
+
+        file.write(tarFile.content());
+
+        file.close();
         // TODO
     }
 }

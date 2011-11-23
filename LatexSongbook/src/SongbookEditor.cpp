@@ -15,12 +15,13 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 
+#include "common.hpp"
 #include "TarArchive.hpp"
 
 SongbookEditor::SongbookEditor(QWidget *parent) :
     QMainWindow(parent),
     isSaved_(true),
-    fileFilter_(tr("Song (*)")),
+    fileFilter_(tr("Songbook (*.lsb)")),
     lastAccessedDir_(QDir::homePath()),
     ui_(new Ui::SongbookEditor)
 {
@@ -61,6 +62,7 @@ SongbookEditor::SongbookEditor(QWidget *parent) :
     connect(ui_->actionSaveAs, SIGNAL(activated()), this, SLOT(saveAsSongbook()));
 
     connect(ui_->actionRedo, SIGNAL(activated()), this, SLOT(saveTarTest())); // TODO - remove
+    connect(ui_->actionUndo, SIGNAL(activated()), this, SLOT(extractTarTest())); // TODO - remove
 
     newSongbook();
 }
@@ -74,8 +76,9 @@ void SongbookEditor::newSongbook()
 {
     if(continueIfUnsaved())
     {
-        // TODO
         songbookFileName_ = QString();
+
+        makeTmpDir_();
 
         setAsSaved(true);
         updateWindowTitle();
@@ -96,25 +99,18 @@ void SongbookEditor::openSongbook(QString fileName)
         lastAccessedDir_ = QFileInfo(fileName).absolutePath();
     }
 
-    /*QFile file(fileName);
-
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        return; // TODO error
-    }
-
-    QString data = file.readAll();
-
-    file.close();
+    TarArchive archive(fileName);
 
     if(continueIfUnsaved())
     {
-        ui_->songEdit->setPlainText(data);
         songbookFileName_ = fileName;
+
+        makeTmpDir_();
+        archive.extract(songbookTmpDir_);
 
         setAsSaved(true);
         updateWindowTitle();
-    }*/
+    }
 }
 
 bool SongbookEditor::saveSongbook()
@@ -227,6 +223,8 @@ void SongbookEditor::closeEvent(QCloseEvent *event)
 {
     if(continueIfUnsaved())
     {
+        removeTmpDir_();
+
         event->accept();
     }
     else
@@ -244,4 +242,45 @@ void SongbookEditor::saveTarTest()
     archive.addFile(TarFile("b", "nazdar"));
     archive.addFile(TarFile("c", "cus"));
     archive.pack();
+}
+
+void SongbookEditor::extractTarTest()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save TAR as ..."), lastAccessedDir_, fileFilter_);
+
+    TarArchive archive(fileName);
+    archive.extract(QFileInfo(fileName).path());
+}
+
+void SongbookEditor::makeTmpDir_()
+{
+    removeTmpDir_();
+
+    std::size_t suffix = 0;
+    QDir tmpDir(QDir::temp().filePath("LatexSongbook"));
+    if(tmpDir.exists())
+    {
+        QStringList entryList = tmpDir.entryList(QStringList("songbook*"), QDir::NoFilter, QDir::Name | QDir::Reversed);
+        if(! entryList.isEmpty())
+        {
+            suffix = entryList.first().replace("songbook", "").toInt();
+            ++suffix;
+        }
+    }
+
+    QString songbookTmpDir = QDir::temp().filePath(
+        QString("LatexSongbook/songbook").append(QString::number(suffix)));
+
+    QDir().mkpath(songbookTmpDir);
+
+    songbookTmpDir_ = songbookTmpDir;
+}
+
+void SongbookEditor::removeTmpDir_()
+{
+    if(! songbookTmpDir_.isEmpty())
+    {
+        removeDir(QDir(songbookTmpDir_));
+        songbookTmpDir_ = QString();
+    }
 }

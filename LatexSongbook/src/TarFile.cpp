@@ -33,6 +33,11 @@ TarFile::TarFile(const QString& name, const TarContent& content):
     qDebug(header_.toHex());
 }
 
+QString TarFile::name()
+{
+    return header_.mid(NAME, NAME_SIZE);
+}
+
 std::size_t TarFile::size()
 {
     return header_.mid(SIZE, SIZE_SIZE).toULongLong(0, 8);
