@@ -64,6 +64,8 @@ SongbookEditor::SongbookEditor(QWidget *parent) :
     connect(ui_->actionRedo, SIGNAL(activated()), this, SLOT(saveTarTest())); // TODO - remove
     connect(ui_->actionUndo, SIGNAL(activated()), this, SLOT(extractTarTest())); // TODO - remove
 
+    connect(ui_->title, SIGNAL(textChanged(QString)), this, SLOT(updateWindowTitle()));
+
     newSongbook();
 }
 
@@ -101,11 +103,11 @@ void SongbookEditor::openSongbook(QString fileName)
 
     TarArchive archive(fileName);
 
-    if(continueIfUnsaved())
+    if(continueIfUnsaved() && loadSongbookInfo_(archive))
     {
         songbookFileName_ = fileName;
+        songbookTmpDir_ = makeTmpDir_();
 
-        makeTmpDir_();
         archive.extract(songbookTmpDir_);
 
         setAsSaved(true);
@@ -177,13 +179,18 @@ void SongbookEditor::updateWindowTitle()
         stream << "* ";
     }
 
-    if(songbookFileName_.isEmpty())
+    if(ui_->title->text().isEmpty())
     {
         stream << tr("[No name]");
     }
     else
     {
-        stream << QFileInfo(songbookFileName_).fileName();
+        stream << ui_->title->text();
+    }
+
+    if(! songbookFileName_.isEmpty())
+    {
+        stream << " (" <<  QFileInfo(songbookFileName_).fileName() << ")";
     }
 
     stream << " - Songbook Editor | LatexSongbook";
@@ -252,7 +259,7 @@ void SongbookEditor::extractTarTest()
     archive.extract(QFileInfo(fileName).path());
 }
 
-void SongbookEditor::makeTmpDir_()
+QString SongbookEditor::makeTmpDir_()
 {
     removeTmpDir_();
 
@@ -273,7 +280,7 @@ void SongbookEditor::makeTmpDir_()
 
     QDir().mkpath(songbookTmpDir);
 
-    songbookTmpDir_ = songbookTmpDir;
+    return songbookTmpDir;
 }
 
 void SongbookEditor::removeTmpDir_()
@@ -283,4 +290,20 @@ void SongbookEditor::removeTmpDir_()
         removeDir(QDir(songbookTmpDir_));
         songbookTmpDir_ = QString();
     }
+}
+
+bool SongbookEditor::loadSongbookInfo_(const TarArchive& archive)
+{
+    TarFile infoTarFile = archive.files().find(".songbookinfo");
+    if(! infoTarFile.isValid())
+    {
+        // TODO error - bud poskozen nebo invalidni
+        return false;
+    }
+
+    QTextStream(infoTarFile.content());
+
+
+
+    return true;
 }

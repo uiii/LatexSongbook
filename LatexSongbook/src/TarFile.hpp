@@ -53,27 +53,31 @@ typedef QByteArray TarContent;
 class TarFile
 {
 public:
+    explicit TarFile();
     explicit TarFile(const QString& name, const TarContent& content = TarContent());
 
     QString name();
     std::size_t size();
 
-    TarHeader header();
-    TarContent content();
+    const TarHeader& header();
+    const TarContent& content();
 
     void setContent(const TarContent& content);
+
+    bool isValid();
 
 public: /* static */
     static TarFile fromHeader(const TarHeader& header);
     static TarFile fromFile(const QString& fileName);
 
 private:
-    TarFile();
     void setHeader_(std::size_t offset, const QByteArray& data);
     void calculateChecksum_();
 
     TarHeader header_;
     TarContent content_;
+
+    bool isValid_;
 };
 
 #endif // TARFILE_HPP

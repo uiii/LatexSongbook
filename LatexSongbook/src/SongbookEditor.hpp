@@ -9,6 +9,7 @@ namespace Ui {
 
 class QFileDialog; // forward declaration
 class QTextDocument; // forward declaration
+class TarArchive; // forward declaration
 
 class SongbookEditor : public QMainWindow
 {
@@ -38,7 +39,9 @@ public slots:
     void extractTarTest(); // TODO - remove
 
 private:
-    void makeTmpDir_();
+    bool loadSongbookInfo_(const TarArchive& archive);
+
+    QString makeTmpDir_();
     void removeTmpDir_();
 
     QString songbookFileName_;

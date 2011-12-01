@@ -7,7 +7,8 @@
 #include <stdexcept>
 
 TarFile::TarFile():
-    header_(TAR_HEADER_SIZE, '\0')
+    header_(TAR_HEADER_SIZE, '\0'),
+    isValid_(false)
 {
     setHeader_(MODE, QByteArray::number(0644, 8).rightJustified(MODE_SIZE - 1, '0', true));
     setHeader_(SIZE, QByteArray::number(0).rightJustified(SIZE_SIZE - 1, '0', true));
@@ -18,7 +19,8 @@ TarFile::TarFile():
 }
 
 TarFile::TarFile(const QString& name, const TarContent& content):
-    header_(TAR_HEADER_SIZE, '\0')
+    header_(TAR_HEADER_SIZE, '\0'),
+    isValid_(true)
 {
     setHeader_(NAME, name.leftJustified(NAME_SIZE, '\0', true).toAscii());
     setHeader_(MODE, QByteArray::number(0644, 8).rightJustified(MODE_SIZE - 1, '0', true));
@@ -30,7 +32,10 @@ TarFile::TarFile(const QString& name, const TarContent& content):
 
     calculateChecksum_();
 
-    qDebug(header_.toHex());
+    if(name.isEmpty())
+    {
+        isValid_ = false;
+    }
 }
 
 QString TarFile::name()
@@ -43,12 +48,12 @@ std::size_t TarFile::size()
     return header_.mid(SIZE, SIZE_SIZE).toULongLong(0, 8);
 }
 
-TarHeader TarFile::header()
+const TarHeader& TarFile::header()
 {
     return header_;
 }
 
-TarContent TarFile::content()
+const TarContent& TarFile::content()
 {
     return content_;
 }
@@ -65,12 +70,8 @@ TarFile TarFile::fromHeader(const TarHeader &header)
 
     tarFile.header_ = header;
 
-    qDebug(header.toHex());
-
     QByteArray chksum = tarFile.header_.mid(CHKSUM, CHKSUM_SIZE);
     tarFile.calculateChecksum_();
-    qDebug(chksum);
-    qDebug(tarFile.header_.mid(CHKSUM, CHKSUM_SIZE));
     if(chksum != tarFile.header_.mid(CHKSUM, CHKSUM_SIZE))
     {
         // TODO error
@@ -78,6 +79,11 @@ TarFile TarFile::fromHeader(const TarHeader &header)
     }
 
     tarFile.content_.rightJustified(tarFile.size(), '\0');
+
+    if(! tarFile.name().isEmpty())
+    {
+        tarFile.isValid_ = true;
+    }
 
     return tarFile;
 }
@@ -126,5 +132,10 @@ void TarFile::calculateChecksum_()
     }*/
 
     setHeader_(CHKSUM, QByteArray::number(sum, 8).rightJustified(CHKSUM_SIZE - 2, '0').append('\0'));
+}
+
+bool TarFile::isValid()
+{
+    return isValid_;
 }
 

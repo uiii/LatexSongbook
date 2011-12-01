@@ -14,12 +14,10 @@ TarArchive::TarArchive(const QString& fileName):
 
 void TarArchive::addFile(const TarFile& file)
 {
-    tarFiles_.append(file);
-}
-
-void TarArchive::addFiles(const QList<TarFile>& files)
-{
-    tarFiles_.append(files);
+    if(file.isValid())
+    {
+        tarFiles_[file.name()] = file;
+    }
 }
 
 void TarArchive::pack()
@@ -102,7 +100,7 @@ void TarArchive::load_()
 
         tarFile.setContent(content);
 
-        tarFiles_.append(tarFile);
+        addFile(tarFile);
     }
 
     archiveFile_.close();

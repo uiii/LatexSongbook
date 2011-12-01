@@ -2,10 +2,14 @@
 Name=FreshFarm
 Comment=FreshFarm Theme
 Inherits=default
-Directories=16x16,32x32
+Directories=16x16,24x24,32x32
 
 [16x16]
 Size=16
+Type=Fixed
+
+[24x24]
+Size=24
 Type=Fixed
 
 [32x32]
