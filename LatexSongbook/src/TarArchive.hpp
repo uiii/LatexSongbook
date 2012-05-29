@@ -12,7 +12,7 @@ public:
     TarArchive(const QString& fileName);
 
     void addFile(const TarFile& file);
-    const QMap<TarFile>& files();
+    const QMap<QString, TarFile>& files();
 
     void pack();
     void extract(const QString& path = ".");
@@ -22,7 +22,7 @@ private:
     QByteArray readBlock_(std::size_t size);
 
     QFile archiveFile_;
-    QMap<TarFile> tarFiles_;
+    QMap<QString, TarFile> tarFiles_;
 };
 
 #endif // TARARCHIVE_HPP
