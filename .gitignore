@@ -2,3 +2,7 @@
 *.swp
 *.pro.user
 tmp
+bin
+build
+libs
+LatexSongbook.*
