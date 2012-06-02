@@ -21,10 +21,6 @@ int main(int argc, char *argv[])
     {
         w.openSongbookEditor();
     }
-    else if(arg == "--song-database")
-    {
-        // TODO
-    }
     else
     {
         w.show();

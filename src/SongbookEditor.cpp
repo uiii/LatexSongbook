@@ -1,5 +1,5 @@
 #include "SongbookEditor.hpp"
-#include "ui_SongbookEditor.h"
+#include "ui_SongbookEditor.hpp"
 
 #include <QDir>
 #include <QFile>

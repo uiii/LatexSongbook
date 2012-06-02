@@ -64,7 +64,7 @@ void TarFile::setContent(const TarContent &content)
     setHeader_(SIZE, QByteArray::number(content.size(), 8).rightJustified(SIZE_SIZE - 1, '0', true));
 }
 
-TarFile TarFile::fromHeader(const TarHeader &header)
+TarFile TarFile::fromHeader(const TarHeader& header)
 {
     TarFile tarFile;
 
