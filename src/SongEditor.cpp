@@ -108,7 +108,9 @@ void SongEditor::openSong(QString fileName)
         return; // TODO error
     }
 
-    QString data = file.readAll();
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+    QString data = stream.readAll();
 
     file.close();
 

@@ -30,6 +30,7 @@ solution "LatexSongbook"
 
         uses "QtGui"
         uses "QtTest"
+        uses "QtSql"
 
         require_pkg_config()
 

@@ -1,11 +1,18 @@
 #include <QtGui/QApplication>
-#include "LatexSongbook.hpp"
+
+#include <QDebug>
+
+#include "DatabaseEditor.hpp"
+#include "SongbookEditor.hpp"
+#include "SongEditor.hpp"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
-    LatexSongbook w;
+    DatabaseEditor databaseEditor(argv[0]);
+    SongEditor songEditor;
+    SongbookEditor songbookEditor;
 
     QString arg;
     if(argc > 1)
@@ -15,16 +22,26 @@ int main(int argc, char *argv[])
 
     if(arg == "--song-editor")
     {
-        w.openSongEditor();
+        songEditor.show();
+
+        if(argc > 2)
+        {
+            songEditor.openSong(argv[2]);
+        }
     }
     else if(arg == "--songbook-editor")
     {
-        w.openSongbookEditor();
+        songbookEditor.show();
+
+        if(argc > 2)
+        {
+            songbookEditor.openSongbook(argv[2]);
+        }
     }
     else
     {
-        w.show();
+        databaseEditor.show();
     }
 
-    return a.exec();
+    return app.exec();
 }
