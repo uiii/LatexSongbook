@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+#include "Config.hpp"
 #include "LocalDatabaseModel.hpp"
 
 namespace Ui {
@@ -14,7 +15,7 @@ class DatabaseEditor : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit DatabaseEditor(QString selfApp, QWidget *parent = 0);
+    explicit DatabaseEditor(Config* config, QWidget* parent = 0);
     ~DatabaseEditor();
 
 private slots:
@@ -27,11 +28,10 @@ private slots:
     void selectionChanged_();
 
 private:
-    Ui::DatabaseEditor *ui_;
+    Ui::DatabaseEditor* ui_;
 
+    Config* config_;
     LocalDatabaseModel* model_;
-
-    QString selfApp_;
 };
 
 #endif // DATABASEEDITOR_HPP

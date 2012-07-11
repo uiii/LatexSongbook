@@ -28,7 +28,7 @@ public:
 signals:
     
 public slots:
-    void updateSongs();
+    void reloadSongs();
 
 private slots:
 

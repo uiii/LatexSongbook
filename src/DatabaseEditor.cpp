@@ -8,11 +8,12 @@
 #include <QProcess>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
+#include <QInputDialog>
 
-DatabaseEditor::DatabaseEditor(QString selfApp, QWidget *parent) :
+DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     QMainWindow(parent),
     ui_(new Ui::DatabaseEditor),
-    selfApp_(selfApp)
+    config_(config)
 {
     ui_->setupUi(this);
 
@@ -24,7 +25,41 @@ DatabaseEditor::DatabaseEditor(QString selfApp, QWidget *parent) :
         }
     }
 
-    QString databaseDir = "/mnt/uloziste/Pracoviste/Projekty/LatexSongbook/tmp/database";
+    //QString databaseDir = "/mnt/uloziste/Pracoviste/Projekty/LatexSongbook/tmp/database";
+    QString databaseDir = config_->value<QString>("DatabaseEditor/DatabaseDir");
+    bool ok = true;
+    while(ok && ! QFileInfo(databaseDir).isDir())
+    {
+        databaseDir = QInputDialog::getText(this,
+            "Set database directory",
+            "Database directory is not set, or is not valid. Please type in the correct one.",
+            QLineEdit::Normal,
+            databaseDir,
+            &ok);
+    }
+
+    if(ok)
+    {
+        config_->setValue("DatabaseEditor/DatabaseDir", databaseDir);
+    }
+    else
+    {
+        int result = QMessageBox::question(this,
+            "Temporary database directory",
+            "Do you want to set the database directory as temporary directory?"
+                "(Warning: This directory may be removed after reboot.)",
+            QMessageBox::Yes | QMessageBox::No);
+
+        if(result == QMessageBox::Yes)
+        {
+            QDir::temp().mkdir("LatexSongbookDatabase");
+            databaseDir = QDir::temp().absoluteFilePath("LatexSongbookDatabase");
+        }
+        else
+        {
+            qApp->quit();
+        }
+    }
 
     model_ = new LocalDatabaseModel(databaseDir);
 
@@ -47,7 +82,7 @@ DatabaseEditor::DatabaseEditor(QString selfApp, QWidget *parent) :
     connect(ui_->songs, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openSong_(QModelIndex)));
     connect(ui_->songs->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChanged_()));
 
-    connect(ui_->actionUpdate, SIGNAL(triggered()), model_, SLOT(updateSongs()));
+    connect(ui_->actionReload, SIGNAL(triggered()), model_, SLOT(reloadSongs()));
 }
 
 DatabaseEditor::~DatabaseEditor()
@@ -57,7 +92,7 @@ DatabaseEditor::~DatabaseEditor()
 
 void DatabaseEditor::newSong_()
 {
-    QProcess::startDetached(selfApp_, QStringList() << "--song-editor");
+    QProcess::startDetached(config_->selfAppPath(), QStringList() << "--song-editor");
 }
 
 void DatabaseEditor::editSong_()
@@ -88,7 +123,7 @@ void DatabaseEditor::openSong_(const QModelIndex& index)
 {
     SongInfo info = model_->songInfo(index);
 
-    QProcess::startDetached(selfApp_, QStringList() << "--song-editor" << info.file.absoluteFilePath());
+    QProcess::startDetached(config_->selfAppPath(), QStringList() << "--song-editor" << info.file.absoluteFilePath());
 }
 
 void DatabaseEditor::selectionChanged_()

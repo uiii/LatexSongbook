@@ -83,7 +83,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -118,11 +118,11 @@
    <addaction name="separator"/>
    <addaction name="actionNew_songgook"/>
    <addaction name="separator"/>
-   <addaction name="actionUpdate"/>
+   <addaction name="actionReload"/>
   </widget>
-  <action name="actionUpdate">
+  <action name="actionReload">
    <property name="text">
-    <string>Update</string>
+    <string>Reload</string>
    </property>
   </action>
   <action name="actionExit">

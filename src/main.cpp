@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+#include "Config.hpp"
+
 #include "DatabaseEditor.hpp"
 #include "SongbookEditor.hpp"
 #include "SongEditor.hpp"
@@ -10,7 +12,9 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    DatabaseEditor databaseEditor(argv[0]);
+    Config config(argc, argv);
+
+    DatabaseEditor databaseEditor(&config);
     SongEditor songEditor;
     SongbookEditor songbookEditor;
 

@@ -26,10 +26,10 @@ LocalDatabaseModel::LocalDatabaseModel(const QString& path, QObject* parent):
 
     watcher_ = new QFileSystemWatcher();
     watcher_->addPath(dir_.absolutePath());
-    connect(watcher_, SIGNAL(directoryChanged(QString)), this, SLOT(updateSongs()));
-    connect(watcher_, SIGNAL(fileChanged(QString)), this, SLOT(updateSongs()));
+    connect(watcher_, SIGNAL(directoryChanged(QString)), this, SLOT(reloadSongs()));
+    connect(watcher_, SIGNAL(fileChanged(QString)), this, SLOT(reloadSongs()));
 
-    updateSongs();
+    reloadSongs();
 }
 
 SongInfo LocalDatabaseModel::songInfo(const QModelIndex& index)
@@ -42,7 +42,7 @@ SongInfo LocalDatabaseModel::songInfo(const QModelIndex& index)
     return songs_.at(index.row());
 }
 
-void LocalDatabaseModel::updateSongs()
+void LocalDatabaseModel::reloadSongs()
 {
     SongInfoList::Iterator songIt = songs_.begin();
     int songRow = 0;
