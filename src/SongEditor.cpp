@@ -15,11 +15,12 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 
-SongEditor::SongEditor(QWidget *parent) :
+SongEditor::SongEditor(Generator* generator, QWidget *parent):
     QMainWindow(parent),
     isSaved_(true),
     fileFilter_(tr("Song (*)")),
     lastAccessedDir_(QDir::homePath()),
+    generator_(generator),
     ui_(new Ui::SongEditor)
 {
     ui_->setupUi(this);
@@ -63,6 +64,7 @@ SongEditor::SongEditor(QWidget *parent) :
     connect(ui_->actionOpen, SIGNAL(activated()), this, SLOT(openSong()));
     connect(ui_->actionSave, SIGNAL(activated()), this, SLOT(saveSong()));
     connect(ui_->actionSaveAs, SIGNAL(activated()), this, SLOT(saveAsSong()));
+    connect(ui_->actionGenerate, SIGNAL(triggered()), this, SLOT(generateSong()));
 
     connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateSongState()));
     //connect(document_, SIGNAL(modificationChanged(bool)), this, SLOT(updateSongState()));
@@ -201,6 +203,11 @@ void SongEditor::updateWindowTitle()
     stream << " - Song Editor | LatexSongbook";
 
     setWindowTitle(title);
+}
+
+void SongEditor::generateSong()
+{
+    generator_->generateSong(document_->toPlainText());
 }
 
 bool SongEditor::continueIfUnsaved()

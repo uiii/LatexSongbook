@@ -14,8 +14,10 @@ int main(int argc, char *argv[])
 
     Config config(argc, argv);
 
+    Generator generator;
+
     DatabaseEditor databaseEditor(&config);
-    SongEditor songEditor;
+    SongEditor songEditor(&generator);
     SongbookEditor songbookEditor;
 
     QString arg;

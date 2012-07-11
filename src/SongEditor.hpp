@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "Generator.hpp"
+
 namespace Ui {
     class SongEditor;
 }
@@ -15,7 +17,7 @@ class SongEditor : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit SongEditor(QWidget *parent = 0);
+    explicit SongEditor(Generator* generator, QWidget *parent = 0);
     ~SongEditor();
 
     bool continueIfUnsaved();
@@ -34,6 +36,8 @@ public slots:
 
     void updateWindowTitle();
 
+    void generateSong();
+
 private:
     QString songFileName_;
 
@@ -43,6 +47,8 @@ private:
 
     QString fileFilter_;
     QString lastAccessedDir_;
+
+    Generator* generator_;
 
     Ui::SongEditor *ui_;
 };

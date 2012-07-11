@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>493</width>
+    <width>550</width>
     <height>465</height>
    </rect>
   </property>
@@ -48,8 +48,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>493</width>
-     <height>19</height>
+     <width>550</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSong">
@@ -109,6 +109,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
+   <addaction name="actionGenerate"/>
    <addaction name="actionShow_preview"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -282,6 +283,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionGenerate">
+   <property name="text">
+    <string>Generate</string>
    </property>
   </action>
  </widget>
