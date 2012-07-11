@@ -9,7 +9,7 @@ namespace qi = boost::spirit::qi;
 
 class Generator
 {
-    typedef std::string::const_iterator iterator;
+    typedef std::string::iterator iterator;
 
     struct SongGrammar : qi::grammar<iterator>
     {
