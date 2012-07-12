@@ -14,6 +14,7 @@ PREMAKE:=${TOOLS_DIR}/premake4-$(shell uname -m)
 
 ifeq ($(config),debug)
     GDB=gdb -ex 'r'
+	GDB_ARG=gdb -ex
 endif
 
 ifndef install_prefix
@@ -41,6 +42,12 @@ build: configure
 
 run:
 	-@${GDB} ${BIN_DIR}/LatexSongbook
+
+run-song-editor:
+	-@${GDB_ARG} 'r --song-editor' ${BIN_DIR}/LatexSongbook
+	
+run-songbook-editor:
+	-@${GDB_ARG} 'r --songbook-editor' ${BIN_DIR}/LatexSongbook
 
 install:
 #@${MAKE} -f ${CONFIG_DIR}/install/install.mk --no-print-directory
