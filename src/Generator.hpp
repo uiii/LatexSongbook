@@ -3,37 +3,16 @@
 
 #include <QString>
 
-#include <boost/spirit/include/qi.hpp>
-
-namespace qi = boost::spirit::qi;
+#include "SongParser.hpp"
 
 class Generator
 {
-    typedef std::string::iterator iterator;
-
-    struct SongGrammar : qi::grammar<iterator>
-    {
-        typedef qi::rule<iterator> Rule;
-
-        SongGrammar();
-
-        Rule word;
-        Rule space;
-
-        Rule start;
-        Rule title;
-        Rule name;
-        Rule author;
-        Rule text;
-    };
-
 public:
     Generator();
 
-    void generateSong(const QString& songText);
+    void generateSong(SongParser& parser);
 
 private:
-    SongGrammar grammar_;
 };
 
 #endif // GENERATOR_HPP

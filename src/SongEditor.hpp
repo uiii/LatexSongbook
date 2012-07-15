@@ -32,7 +32,7 @@ public slots:
 
     void setAsSaved(bool flag);
 
-    void updateSongState();
+    void updateEditorState();
 
     void updateWindowTitle();
 

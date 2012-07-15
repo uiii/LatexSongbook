@@ -4,26 +4,19 @@
 
 #include <string>
 
-Generator::SongGrammar::SongGrammar():
-    SongGrammar::base_type(start)
-{
-    word = qi::char_("a-zA-Zěščřžýáíé");
-    space = qi::char_(' ');
-
-    name = word % space;
-    author = word % space;
-    title = *space >> name >> *space >> '(' >> author >> ')';
-    text = *qi::char_;
-    start = title >> qi::eol >> text;
-}
-
 Generator::Generator()
 {
 }
 
-void Generator::generateSong(const QString &songText)
+void Generator::generateSong(SongParser& parser)
 {
+    /*for(int i = 0; i < songText.size(); ++i)
+    {
+        qDebug() << songText.at(i);
+    }
     std::string text = songText.toAscii().data();
-    bool result = qi::parse(text.begin(), text.end(), grammar_);
+    std::string::iterator it = text.begin();
+    bool result = qi::parse(it, text.end(), grammar_);
     qDebug() << result;
+    qDebug() << text.substr(0, it - text.begin()).c_str();*/
 }

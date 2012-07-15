@@ -10,10 +10,14 @@
 
 struct SongInfo
 {
+    SongInfo();
+
     QFileInfo file;
     QString name;
     QString author;
-    QDateTime lastChanged;
+    QDateTime lastModified;
+
+    bool isValid;
 };
 
 class LocalDatabaseModel : public QStandardItemModel
@@ -21,25 +25,29 @@ class LocalDatabaseModel : public QStandardItemModel
     Q_OBJECT
 
 public:
-    LocalDatabaseModel(const QString& path, QObject* parent = 0);
+    LocalDatabaseModel(QObject* parent = 0);
 
     SongInfo songInfo(const QModelIndex& index);
 
+    void setDirectory(const QString& path);
+
 signals:
+    void invalidDirectory();
     
 public slots:
     void reloadSongs();
 
-private slots:
-
 private:
-    SongInfo loadSongInfo_(QFileInfo info) const;
-    void updateSongInfo_(int row, SongInfo songInfo);
+    typedef QVector<SongInfo> SongInfoList;
 
-    QDir dir_;
+    SongInfo loadSongInfo_(QFileInfo info) const;
+    SongInfoList::Iterator removeSongInfo_(SongInfoList::Iterator it);
+    void updateSongInfo_(SongInfoList::Iterator it, SongInfo songInfo);
+    SongInfoList::Iterator newSongInfo_(SongInfoList::Iterator it, SongInfo songInfo);
+
+    QString path_;
     QFileSystemWatcher* watcher_;
 
-    typedef QVector<SongInfo> SongInfoList;
     SongInfoList songs_;
 };
 

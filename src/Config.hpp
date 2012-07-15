@@ -31,7 +31,8 @@ Type Config::value(const QString& key)
 template< typename Type >
 void Config::setValue(const QString& key, const Type& value)
 {
-    return settings_.setValue(key, QVariant::fromValue(value));
+    settings_.setValue(key, QVariant::fromValue(value));
+    settings_.sync();
 }
 
 #endif // CONFIG_HPP

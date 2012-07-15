@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
         if(argc > 2)
         {
-            songEditor.openSong(argv[2]);
+            songEditor.openSong(QString::fromLocal8Bit(argv[2]));
         }
     }
     else if(arg == "--songbook-editor")
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
         if(argc > 2)
         {
-            songbookEditor.openSongbook(argv[2]);
+            songbookEditor.openSongbook(QString::fromLocal8Bit(argv[2]));
         }
     }
     else
@@ -49,5 +49,6 @@ int main(int argc, char *argv[])
         databaseEditor.show();
     }
 
+    qDebug() << "tu";
     return app.exec();
 }

@@ -18,7 +18,15 @@ public:
     explicit DatabaseEditor(Config* config, QWidget* parent = 0);
     ~DatabaseEditor();
 
+signals:
+    void showed();
+
+protected:
+    void showEvent(QShowEvent *event);
+
 private slots:
+    void setDatabaseDirectory_();
+
     void newSong_();
     void editSong_();
     void deleteSongs_();

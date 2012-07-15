@@ -9,6 +9,9 @@
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QFileDialog>
+
+#include "InputPathDialog.hpp"
 
 DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     QMainWindow(parent),
@@ -17,51 +20,7 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
 {
     ui_->setupUi(this);
 
-    if(! QFileInfo(QDir::homePath() + "/.latexsongbook").exists())
-    {
-        if(! QDir::home().mkdir(".latexsongbook"))
-        {
-            throw; // TODO
-        }
-    }
-
-    //QString databaseDir = "/mnt/uloziste/Pracoviste/Projekty/LatexSongbook/tmp/database";
-    QString databaseDir = config_->value<QString>("DatabaseEditor/DatabaseDir");
-    bool ok = true;
-    while(ok && ! QFileInfo(databaseDir).isDir())
-    {
-        databaseDir = QInputDialog::getText(this,
-            "Set database directory",
-            "Database directory is not set, or is not valid. Please type in the correct one.",
-            QLineEdit::Normal,
-            databaseDir,
-            &ok);
-    }
-
-    if(ok)
-    {
-        config_->setValue("DatabaseEditor/DatabaseDir", databaseDir);
-    }
-    else
-    {
-        int result = QMessageBox::question(this,
-            "Temporary database directory",
-            "Do you want to set the database directory as temporary directory?"
-                "(Warning: This directory may be removed after reboot.)",
-            QMessageBox::Yes | QMessageBox::No);
-
-        if(result == QMessageBox::Yes)
-        {
-            QDir::temp().mkdir("LatexSongbookDatabase");
-            databaseDir = QDir::temp().absoluteFilePath("LatexSongbookDatabase");
-        }
-        else
-        {
-            qApp->quit();
-        }
-    }
-
-    model_ = new LocalDatabaseModel(databaseDir);
+    model_ = new LocalDatabaseModel();
 
     QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel();
     sortProxyModel->setSortLocaleAware(true);
@@ -75,11 +34,14 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     ui_->songs->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
     ui_->songs->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
 
+    connect(model_, SIGNAL(invalidDirectory()), this, SLOT(setDatabaseDirectory_()), Qt::QueuedConnection);
+    connect(this, SIGNAL(showed()), this, SLOT(setDatabaseDirectory_()), Qt::QueuedConnection);
+
     connect(ui_->actionNewSong, SIGNAL(triggered()), this, SLOT(newSong_()));
     connect(ui_->actionEditSong, SIGNAL(triggered()), this, SLOT(editSong_()));
     connect(ui_->actionDeleteSongs, SIGNAL(triggered()), this, SLOT(deleteSongs_()));
 
-    connect(ui_->songs, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openSong_(QModelIndex)));
+    connect(ui_->songs, SIGNAL(activated(QModelIndex)), this, SLOT(openSong_(QModelIndex)));
     connect(ui_->songs->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChanged_()));
 
     connect(ui_->actionReload, SIGNAL(triggered()), model_, SLOT(reloadSongs()));
@@ -88,6 +50,57 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
 DatabaseEditor::~DatabaseEditor()
 {
     delete ui_;
+}
+
+void DatabaseEditor::showEvent(QShowEvent* event)
+{
+    QMainWindow::showEvent(event);
+
+    emit showed();
+}
+
+void DatabaseEditor::setDatabaseDirectory_()
+{
+    QString databaseDirectory = config_->value<QString>("DatabaseEditor/DatabaseDirectory");
+    while(! QFileInfo(databaseDirectory).isDir())
+    {
+        databaseDirectory = InputPathDialog::getDirectory(this,
+            "Set database directory",
+            "Database directory is not set, or is not valid. Please type in the correct one.",
+            databaseDirectory
+        );
+
+        if(databaseDirectory.isNull())
+        {
+            break;
+        }
+    }
+
+    if(databaseDirectory.isNull())
+    {
+        int result = QMessageBox::question(this,
+            "Temporary database directory",
+            "Do you want to set the database directory as temporary directory? "
+                "\n(Warning: This directory may be removed after reboot.)\nPress 'No' to quit application.",
+            QMessageBox::Yes | QMessageBox::No);
+
+        if(result == QMessageBox::Yes)
+        {
+            QDir::temp().mkdir("LatexSongbookDatabase");
+            databaseDirectory = QDir::temp().absoluteFilePath("LatexSongbookDatabase");
+        }
+        else
+        {
+            close();
+            return;
+        }
+    }
+    else
+    {
+        config_->setValue("DatabaseEditor/DatabaseDirectory", databaseDirectory);
+    }
+
+    model_->setDirectory(databaseDirectory);
 }
 
 void DatabaseEditor::newSong_()
@@ -123,7 +136,7 @@ void DatabaseEditor::openSong_(const QModelIndex& index)
 {
     SongInfo info = model_->songInfo(index);
 
-    QProcess::startDetached(config_->selfAppPath(), QStringList() << "--song-editor" << info.file.absoluteFilePath());
+    QProcess::startDetached(config_->selfAppPath(), QStringList() << "--song-editor" << QString("%1").arg(info.file.absoluteFilePath()));
 }
 
 void DatabaseEditor::selectionChanged_()

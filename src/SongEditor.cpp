@@ -19,7 +19,7 @@ SongEditor::SongEditor(Generator* generator, QWidget *parent):
     QMainWindow(parent),
     isSaved_(true),
     fileFilter_(tr("Song (*)")),
-    lastAccessedDir_(QDir::homePath()),
+    lastAccessedDir_(QDir::currentPath()),
     generator_(generator),
     ui_(new Ui::SongEditor)
 {
@@ -46,14 +46,7 @@ SongEditor::SongEditor(Generator* generator, QWidget *parent):
 
         << qMakePair(ui_->actionExit, QString("application-exit"));
 
-    for(auto& actionIcon: actionIcons)
-    {
-        if(! QIcon::hasThemeIcon(actionIcon.second))
-        {
-            QIcon::setThemeName("FreshFarm");
-            break;
-        }
-    }
+    QIcon::setThemeName("FreshFarm");
 
     for(auto& actionIcon: actionIcons)
     {
@@ -66,8 +59,7 @@ SongEditor::SongEditor(Generator* generator, QWidget *parent):
     connect(ui_->actionSaveAs, SIGNAL(activated()), this, SLOT(saveAsSong()));
     connect(ui_->actionGenerate, SIGNAL(triggered()), this, SLOT(generateSong()));
 
-    connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateSongState()));
-    //connect(document_, SIGNAL(modificationChanged(bool)), this, SLOT(updateSongState()));
+    connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateEditorState()));
 
     newSong();
 }
@@ -85,12 +77,13 @@ void SongEditor::newSong()
         songFileName_ = QString();
 
         setAsSaved(true);
-        updateWindowTitle();
+        updateEditorState();
     }
 }
 
 void SongEditor::openSong(QString fileName)
 {
+    qDebug() << fileName;
     if(fileName.isEmpty())
     {
         fileName = QFileDialog::getOpenFileName(this, tr("Open song"), lastAccessedDir_, fileFilter_);
@@ -99,9 +92,9 @@ void SongEditor::openSong(QString fileName)
         {
             return;
         }
-
-        lastAccessedDir_ = QFileInfo(fileName).absolutePath();
     }
+
+    lastAccessedDir_ = QFileInfo(fileName).absolutePath();
 
     QFile file(fileName);
 
@@ -122,6 +115,7 @@ void SongEditor::openSong(QString fileName)
         songFileName_ = fileName;
 
         setAsSaved(true);
+        updateEditorState();
         updateWindowTitle();
     }
 }
@@ -171,10 +165,11 @@ void SongEditor::setAsSaved(bool isSaved)
     isSaved_ = isSaved;
 }
 
-void SongEditor::updateSongState()
+void SongEditor::updateEditorState()
 {
     isSaved_ = ! document_->isModified();
 
+    ui_->actionSave->setEnabled(! isSaved_ || document_->isEmpty());
     ui_->actionUndo->setEnabled(document_->isUndoAvailable());
     ui_->actionRedo->setEnabled(document_->isRedoAvailable());
 
@@ -207,12 +202,12 @@ void SongEditor::updateWindowTitle()
 
 void SongEditor::generateSong()
 {
-    generator_->generateSong(document_->toPlainText());
+    //generator_->generateSong(document_->toPlainText());
 }
 
 bool SongEditor::continueIfUnsaved()
 {
-    if(isSaved_)
+    if(isSaved_ || document_->isEmpty())
     {
         return true;
     }
