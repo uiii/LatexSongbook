@@ -2,6 +2,7 @@
 #define DATABASEEDITOR_HPP
 
 #include <QMainWindow>
+#include <QSortFilterProxyModel>
 
 #include "Config.hpp"
 #include "LocalDatabaseModel.hpp"
@@ -26,6 +27,7 @@ protected:
 
 private slots:
     void setDatabaseDirectory_();
+    void updateSorting_();
 
     void newSong_();
     void editSong_();
@@ -40,6 +42,7 @@ private:
 
     Config* config_;
     LocalDatabaseModel* model_;
+    QSortFilterProxyModel* sortModel_;
 };
 
 #endif // DATABASEEDITOR_HPP

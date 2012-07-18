@@ -53,6 +53,8 @@ SongEditor::SongEditor(Generator* generator, QWidget *parent):
         actionIcon.first->setIcon(QIcon::fromTheme(actionIcon.second));
     }
 
+    //ui_->errorsButton->setStyleSheet("QPushButton {background-color: rgba(0,255,0,50)}");
+
     connect(ui_->actionNew, SIGNAL(activated()), this, SLOT(newSong()));
     connect(ui_->actionOpen, SIGNAL(activated()), this, SLOT(openSong()));
     connect(ui_->actionSave, SIGNAL(activated()), this, SLOT(saveSong()));
@@ -60,6 +62,7 @@ SongEditor::SongEditor(Generator* generator, QWidget *parent):
     connect(ui_->actionGenerate, SIGNAL(triggered()), this, SLOT(generateSong()));
 
     connect(document_, SIGNAL(contentsChanged()), this, SLOT(updateEditorState()));
+    connect(document_, SIGNAL(contentsChanged()), this, SLOT(parseText_()));
 
     newSong();
 }
@@ -76,7 +79,9 @@ void SongEditor::newSong()
         ui_->songEdit->clear();
         songFileName_ = QString();
 
-        setAsSaved(true);
+        isSaved_ = false;
+        document_->setModified(false);
+
         updateEditorState();
     }
 }
@@ -116,7 +121,6 @@ void SongEditor::openSong(QString fileName)
 
         setAsSaved(true);
         updateEditorState();
-        updateWindowTitle();
     }
 }
 
@@ -154,7 +158,7 @@ bool SongEditor::saveAsSong(QString fileName)
     songFileName_ = fileName;
 
     setAsSaved(true);
-    updateWindowTitle();
+    updateEditorState();
 
     return true;
 }
@@ -169,7 +173,7 @@ void SongEditor::updateEditorState()
 {
     isSaved_ = ! document_->isModified();
 
-    ui_->actionSave->setEnabled(! isSaved_ || document_->isEmpty());
+    ui_->actionSave->setEnabled(! isSaved_);
     ui_->actionUndo->setEnabled(document_->isUndoAvailable());
     ui_->actionRedo->setEnabled(document_->isRedoAvailable());
 
@@ -202,12 +206,35 @@ void SongEditor::updateWindowTitle()
 
 void SongEditor::generateSong()
 {
-    //generator_->generateSong(document_->toPlainText());
+    if(parser_.noErrors())
+    {
+        qDebug() << "generate";
+        generator_->generateSong(parser_);
+    }
+    else // TODO remove
+    {
+        for(SongParser::Message m : parser_.errors())
+        {
+            qDebug() << "e" << m.line << ":" << m.text;
+        }
+
+        for(SongParser::Message m : parser_.warnings())
+        {
+            qDebug() << "w" << m.line << ":" << m.text;
+        }
+    }
+}
+
+void SongEditor::parseText_()
+{
+    parser_.parse(document_->toPlainText());
+    qDebug() << parser_.name();
+    qDebug() << parser_.author();
 }
 
 bool SongEditor::continueIfUnsaved()
 {
-    if(isSaved_ || document_->isEmpty())
+    if(! document_->isModified())
     {
         return true;
     }

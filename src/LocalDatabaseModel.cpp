@@ -68,8 +68,8 @@ void LocalDatabaseModel::reloadSongs()
 
     while(songIt != songs_.end() && entryIt != entries.end())
     {
-        qDebug() << songIt->file.fileName();
-        qDebug() << entryIt->fileName();
+        //qDebug() << songIt->file.fileName();
+        //qDebug() << entryIt->fileName();
         if(QString::localeAwareCompare(songIt->file.fileName(), entryIt->fileName()) < 0)
         {
             // remove
@@ -127,7 +127,7 @@ void LocalDatabaseModel::reloadSongs()
         }
     }
 
-    qDebug() << "tady";
+    //qDebug() << "tady";
 
     while(songIt != songs_.end())
     {
@@ -147,7 +147,7 @@ void LocalDatabaseModel::reloadSongs()
         }
         catch(...)
         {
-            qDebug() << "catch";
+            //qDebug() << "catch";
         }
 
         if(songInfo.isValid)
@@ -156,13 +156,16 @@ void LocalDatabaseModel::reloadSongs()
         }
 
         ++entryIt;
-        qDebug() << "pass";
+        //qDebug() << "pass";
     }
+
+    qDebug() << "emit songs reloaded";
+    emit songsReloaded();
 }
 
 SongInfo LocalDatabaseModel::loadSongInfo_(QFileInfo fileInfo) const
 {
-    qDebug() << fileInfo.absoluteFilePath();
+    //qDebug() << fileInfo.absoluteFilePath();
     QFile file(fileInfo.absoluteFilePath());
     if(! file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -173,7 +176,7 @@ SongInfo LocalDatabaseModel::loadSongInfo_(QFileInfo fileInfo) const
     stream.setCodec("UTF-8");
     QString line = stream.readLine();
 
-    qDebug() << line;
+    //qDebug() << line;
 
     QRegExp reg("(\\S.+) +\\((\\S.+)\\) *");
     if(! reg.exactMatch(line))

@@ -22,12 +22,12 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
 
     model_ = new LocalDatabaseModel();
 
-    QSortFilterProxyModel* sortProxyModel = new QSortFilterProxyModel();
-    sortProxyModel->setSortLocaleAware(true);
-    sortProxyModel->setSortRole(Qt::UserRole + 1);
-    sortProxyModel->setSourceModel(model_);
+    sortModel_ = new QSortFilterProxyModel();
+    sortModel_->setSortLocaleAware(true);
+    sortModel_->setSortRole(Qt::UserRole + 1);
+    sortModel_->setSourceModel(model_);
 
-    ui_->songs->setModel(sortProxyModel);
+    ui_->songs->setModel(sortModel_);
 
     ui_->songs->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
     ui_->songs->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
@@ -35,6 +35,7 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     ui_->songs->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
 
     connect(model_, SIGNAL(invalidDirectory()), this, SLOT(setDatabaseDirectory_()), Qt::QueuedConnection);
+    connect(model_, SIGNAL(songsReloaded()), this, SLOT(updateSorting_()));
     connect(this, SIGNAL(showed()), this, SLOT(setDatabaseDirectory_()), Qt::QueuedConnection);
 
     connect(ui_->actionNewSong, SIGNAL(triggered()), this, SLOT(newSong_()));
@@ -103,6 +104,17 @@ void DatabaseEditor::setDatabaseDirectory_()
     model_->setDirectory(databaseDirectory);
 }
 
+void DatabaseEditor::updateSorting_()
+{
+    int sortColumn = sortModel_->sortColumn();
+    if(sortColumn < 0)
+    {
+        sortColumn = 0;
+    }
+
+    ui_->songs->sortByColumn(sortColumn, Qt::AscendingOrder);
+}
+
 void DatabaseEditor::newSong_()
 {
     QProcess::startDetached(config_->selfAppPath(), QStringList() << "--song-editor");
@@ -134,7 +146,7 @@ void DatabaseEditor::deleteSongs_()
 
 void DatabaseEditor::openSong_(const QModelIndex& index)
 {
-    SongInfo info = model_->songInfo(index);
+    SongInfo info = model_->songInfo(sortModel_->mapToSource(index));
 
     QProcess::startDetached(config_->selfAppPath(), QStringList() << "--song-editor" << QString("%1").arg(info.file.absoluteFilePath()));
 }

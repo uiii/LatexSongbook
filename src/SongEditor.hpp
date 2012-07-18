@@ -38,6 +38,9 @@ public slots:
 
     void generateSong();
 
+private slots:
+    void parseText_();
+
 private:
     QString songFileName_;
 
@@ -48,6 +51,7 @@ private:
     QString fileFilter_;
     QString lastAccessedDir_;
 
+    SongParser parser_;
     Generator* generator_;
 
     Ui::SongEditor *ui_;

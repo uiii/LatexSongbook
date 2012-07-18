@@ -33,6 +33,7 @@ public:
 
 signals:
     void invalidDirectory();
+    void songsReloaded();
     
 public slots:
     void reloadSongs();

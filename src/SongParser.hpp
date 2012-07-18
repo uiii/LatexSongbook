@@ -26,7 +26,7 @@ public:
         Verse,
         Refrain,
         Recitation,
-        Star,
+        Label,
         Unmarked,
         ChordsLine
     };
@@ -34,44 +34,50 @@ public:
     struct Section
     {
         SectionType type;
-        int number;
+        QString detail;
 
         QList<Line> lines;
     };
 
-    struct Error
+    struct Message
     {
         int line;
-        QString message;
+        QString text;
     };
 
-    SongParser(const QString& text);
+    SongParser();
 
-    bool correct() const;
+    void parse(const QString& text);
+
+    bool noErrors() const;
 
     QString name() const;
     QString author() const;
 
-    QList<Section> sections();
+    QList<Section> sections() const;
+    QList<Message> errors() const;
+    QList<Message> warnings() const;
 
 private:
-    void parseText_();
+    void clear_();
 
-    void parseLyricsLine_(QString& line, QList<Chord>& chordBuffer, Section*& currentSection, int offset = 0);
-    void parseChordLine_(QString& line, QList<Chord>& chordBuffer, Section*& currentSection);
-    void parseNamedSectionLine_(QString& line, QList<Chord>& chordBuffer, Section*& currentSection);
-    void parseNumberedSectionLine_(QString& line, QList<Chord>& chordBuffer, Section*& currentSection);
-    void parseStarSectionLine_(QString& line, QList<Chord>& chordBuffer, Section*& currentSection);
-    void parseUnmarkedSectionLine_(QString& line, QList<Chord>& chordBuffer, Section*& currentSection);
+    void parseText_() const;
+
+    void newSection_(const QString& sectionLabel, Section*& currentSection) const;
+    void newChordSection_(QList<Chord>& chordBuffer, Section*& currentSection) const;
+
+    void parseLyricsLine_(const QString& line, int lineNumber, QList<Chord>& chordBuffer, Section*& currentSection, int offset = 0) const;
+    void parseChordLine_(const QString& line, int lineNumber, QList<Chord>& chordBuffer, Section*& currentSection, int offset) const;
 
     QString name_;
     QString author_;
+    QString text_;
 
-    QList<Section> sections_;
+    mutable bool parsed_;
 
-    bool parsed_;
-
-    QList<Error> errors_;
+    mutable QList<Section> sections_;
+    mutable QList<Message> errors_;
+    mutable QList<Message> warnings_;
 
     QString originalText_;
 };

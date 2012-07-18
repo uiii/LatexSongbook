@@ -13,6 +13,7 @@ public:
     void generateSong(SongParser& parser);
 
 private:
+    QString generateLyrics_(SongParser::Section& section);
 };
 
 #endif // GENERATOR_HPP
