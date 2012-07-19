@@ -12,6 +12,7 @@
 #include <QFileDialog>
 
 #include "InputPathDialog.hpp"
+#include "GeneratorSettings.hpp" // TODO remove
 
 DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     QMainWindow(parent),
@@ -19,6 +20,9 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     config_(config)
 {
     ui_->setupUi(this);
+
+    settingsDialog_ = new SettingsDialog(this);
+    settingsDialog_->addSettings(new GeneratorSettings()); // TODO remove
 
     model_ = new LocalDatabaseModel();
 
@@ -38,12 +42,14 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     connect(model_, SIGNAL(songsReloaded()), this, SLOT(updateSorting_()));
     connect(this, SIGNAL(showed()), this, SLOT(setDatabaseDirectory_()), Qt::QueuedConnection);
 
+    connect(ui_->songs, SIGNAL(activated(QModelIndex)), this, SLOT(openSong_(QModelIndex)));
+    connect(ui_->songs->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChanged_()));
+
+    connect(ui_->actionSettings, SIGNAL(triggered()), settingsDialog_, SLOT(exec()));
+
     connect(ui_->actionNewSong, SIGNAL(triggered()), this, SLOT(newSong_()));
     connect(ui_->actionEditSong, SIGNAL(triggered()), this, SLOT(editSong_()));
     connect(ui_->actionDeleteSongs, SIGNAL(triggered()), this, SLOT(deleteSongs_()));
-
-    connect(ui_->songs, SIGNAL(activated(QModelIndex)), this, SLOT(openSong_(QModelIndex)));
-    connect(ui_->songs->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChanged_()));
 
     connect(ui_->actionReload, SIGNAL(triggered()), model_, SLOT(reloadSongs()));
 }

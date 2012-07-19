@@ -6,6 +6,7 @@
 
 #include "Config.hpp"
 #include "LocalDatabaseModel.hpp"
+#include "SettingsDialog.hpp"
 
 namespace Ui {
     class DatabaseEditor;
@@ -41,6 +42,8 @@ private:
     Ui::DatabaseEditor* ui_;
 
     Config* config_;
+    SettingsDialog* settingsDialog_;
+
     LocalDatabaseModel* model_;
     QSortFilterProxyModel* sortModel_;
 };
