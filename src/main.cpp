@@ -12,13 +12,13 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    QIcon::setThemeName("FreshFarm");
+
     Config config(argc, argv);
 
-    Generator generator;
-
     DatabaseEditor databaseEditor(&config);
-    SongEditor songEditor(&generator);
-    SongbookEditor songbookEditor;
+    SongEditor songEditor(&config);
+    SongbookEditor songbookEditor(&config);
 
     QString arg;
     if(argc > 1)

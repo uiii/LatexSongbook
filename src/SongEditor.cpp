@@ -15,12 +15,12 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 
-SongEditor::SongEditor(Generator* generator, QWidget *parent):
+SongEditor::SongEditor(Config* config, QWidget *parent):
     QMainWindow(parent),
-    isSaved_(true),
+    config_(config),
     fileFilter_(tr("Song (*)")),
     lastAccessedDir_(QDir::currentPath()),
-    generator_(generator),
+    generator_(new Generator/*(config_)*/),
     ui_(new Ui::SongEditor)
 {
     ui_->setupUi(this);
@@ -32,7 +32,7 @@ SongEditor::SongEditor(Generator* generator, QWidget *parent):
 
     QList<QPair<QAction*, QString> > actionIcons;
     actionIcons
-        << qMakePair(ui_->actionNew, QString("document-new"))
+        << qMakePair(ui_->actionNew, QString("song-new"))
         << qMakePair(ui_->actionOpen, QString("document-open"))
         << qMakePair(ui_->actionSave, QString("document-save"))
         << qMakePair(ui_->actionSaveAs, QString("document-save-as"))
@@ -45,8 +45,6 @@ SongEditor::SongEditor(Generator* generator, QWidget *parent):
         << qMakePair(ui_->actionPaste, QString("edit-paste"))
 
         << qMakePair(ui_->actionExit, QString("application-exit"));
-
-    QIcon::setThemeName("FreshFarm");
 
     for(auto& actionIcon: actionIcons)
     {
@@ -79,8 +77,7 @@ void SongEditor::newSong()
         ui_->songEdit->clear();
         songFileName_ = QString();
 
-        isSaved_ = false;
-        document_->setModified(false);
+        setAsSaved(true);
 
         updateEditorState();
     }
@@ -166,14 +163,11 @@ bool SongEditor::saveAsSong(QString fileName)
 void SongEditor::setAsSaved(bool isSaved)
 {
     document_->setModified(! isSaved);
-    isSaved_ = isSaved;
 }
 
 void SongEditor::updateEditorState()
 {
-    isSaved_ = ! document_->isModified();
-
-    ui_->actionSave->setEnabled(! isSaved_);
+    ui_->actionSave->setEnabled(document_->isModified() || document_->isEmpty());
     ui_->actionUndo->setEnabled(document_->isUndoAvailable());
     ui_->actionRedo->setEnabled(document_->isRedoAvailable());
 
@@ -185,7 +179,7 @@ void SongEditor::updateWindowTitle()
     QString title;
     QTextStream stream(&title);
 
-    if(! isSaved_)
+    if(document_->isModified())
     {
         stream << "* ";
     }

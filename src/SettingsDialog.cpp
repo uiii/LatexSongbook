@@ -20,7 +20,7 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::addSettings(Settings* settings)
 {
-    settingsListModel_->appendRow(new QStandardItem(settings->name()));
+    settingsListModel_->appendRow(new QStandardItem(settings->icon(), settings->name()));
 
     QTabWidget* tabs = new QTabWidget();
 

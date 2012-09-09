@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+#include "Config.hpp"
 #include "Generator.hpp"
 
 namespace Ui {
@@ -17,7 +18,7 @@ class SongEditor : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit SongEditor(Generator* generator, QWidget *parent = 0);
+    explicit SongEditor(Config* config, QWidget *parent = 0);
     ~SongEditor();
 
     bool continueIfUnsaved();
@@ -42,11 +43,11 @@ private slots:
     void parseText_();
 
 private:
+    Config* config_;
+
     QString songFileName_;
 
     QTextDocument* document_;
-
-    bool isSaved_;
 
     QString fileFilter_;
     QString lastAccessedDir_;

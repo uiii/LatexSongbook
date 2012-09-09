@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QString>
+#include <QIcon>
 
 class Page : public QWidget
 {
@@ -22,9 +23,11 @@ class Settings
 public:
     typedef QList<Page*> Pages;
 
-    Settings(const QString& name);
+    Settings(const QString& name, const QIcon& icon = QIcon());
 
-    QString name() const;
+    const QString& name() const;
+    const QIcon& icon() const;
+
     const Pages& pages() const;
 
 protected:
@@ -32,6 +35,8 @@ protected:
 
 private:
     QString name_;
+    QIcon icon_;
+
     Pages pages_;
 };
 

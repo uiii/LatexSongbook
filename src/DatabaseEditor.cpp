@@ -21,6 +21,18 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
 {
     ui_->setupUi(this);
 
+    QList<QPair<QAction*, QString> > actionIcons;
+    actionIcons
+        << qMakePair(ui_->actionNewSong, QString("song-new"))
+        << qMakePair(ui_->actionNewSongbook, QString("songbook"))
+        << qMakePair(ui_->actionReload, QString("database-reload"))
+        << qMakePair(ui_->actionExit, QString("application-exit"));
+
+    for(auto& actionIcon: actionIcons)
+    {
+        actionIcon.first->setIcon(QIcon::fromTheme(actionIcon.second));
+    }
+
     settingsDialog_ = new SettingsDialog(this);
     settingsDialog_->addSettings(new GeneratorSettings()); // TODO remove
 
@@ -51,7 +63,12 @@ DatabaseEditor::DatabaseEditor(Config* config, QWidget *parent) :
     connect(ui_->actionEditSong, SIGNAL(triggered()), this, SLOT(editSong_()));
     connect(ui_->actionDeleteSongs, SIGNAL(triggered()), this, SLOT(deleteSongs_()));
 
+    connect(ui_->actionNewSongbook, SIGNAL(triggered()), this, SLOT(newSongbook_()));
+
     connect(ui_->actionReload, SIGNAL(triggered()), model_, SLOT(reloadSongs()));
+
+    ui_->splitter->setStretchFactor(0, 3);
+    ui_->splitter->setStretchFactor(1, 1);
 }
 
 DatabaseEditor::~DatabaseEditor()
@@ -148,6 +165,11 @@ void DatabaseEditor::deleteSongs_()
 
         }
     }
+}
+
+void DatabaseEditor::newSongbook_()
+{
+    QProcess::startDetached(config_->selfAppPath(), QStringList() << "--songbook-editor");
 }
 
 void DatabaseEditor::openSong_(const QModelIndex& index)

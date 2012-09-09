@@ -1,85 +1,32 @@
 #ifndef SONGPARSER_HPP
 #define SONGPARSER_HPP
 
-#include <QString>
-#include <QList>
+#include "Lexer.hpp"
 
 class SongParser
 {
 public:
-    struct Chord
+    enum TokenID
     {
-        int offset;
-        QString name;
-    };
-
-    typedef QList<Chord> Chords;
-
-    struct Line
-    {
-        Chords chords;
-        QString lyrics;
-    };
-
-    enum SectionType
-    {
-        Verse,
-        Refrain,
-        Recitation,
-        Label,
-        Unmarked,
-        ChordsLine
-    };
-
-    struct Section
-    {
-        SectionType type;
-        QString detail;
-
-        QList<Line> lines;
-    };
-
-    struct Message
-    {
-        int line;
-        QString text;
+        TOK_SPACE,
+        TOK_DOT,
+        TOK_LEFT_BRACKET,
+        TOK_RIGHT_BRACKET,
+        TOK_COLON,
+        TOK_NUMBER,
+        TOK_CAPO,
+        TOK_RECITATION,
+        TOK_REFRAIN,
+        TOK_WORD,
+        TOK_EOL
     };
 
     SongParser();
 
     void parse(const QString& text);
 
-    bool noErrors() const;
-
-    QString name() const;
-    QString author() const;
-
-    QList<Section> sections() const;
-    QList<Message> errors() const;
-    QList<Message> warnings() const;
-
 private:
-    void clear_();
-
-    void parseText_() const;
-
-    void newSection_(const QString& sectionLabel, Section*& currentSection) const;
-    void newChordSection_(QList<Chord>& chordBuffer, Section*& currentSection) const;
-
-    void parseLyricsLine_(const QString& line, int lineNumber, QList<Chord>& chordBuffer, Section*& currentSection, int offset = 0) const;
-    void parseChordLine_(const QString& line, int lineNumber, QList<Chord>& chordBuffer, Section*& currentSection, int offset) const;
-
-    QString name_;
-    QString author_;
-    QString text_;
-
-    mutable bool parsed_;
-
-    mutable QList<Section> sections_;
-    mutable QList<Message> errors_;
-    mutable QList<Message> warnings_;
-
-    QString originalText_;
+    Lexer lexer_;
 };
 
 #endif // SONGPARSER_HPP

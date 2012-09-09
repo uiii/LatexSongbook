@@ -8,12 +8,18 @@
         <file alias="edit-cut.png">icons/FreshFarm/16x16/cut_red.png</file>
         <file alias="document-save.png">icons/FreshFarm/16x16/disk.png</file>
         <file alias="application-exit.png">icons/FreshFarm/16x16/door_out.png</file>
-        <file alias="document-open.png">icons/FreshFarm/16x16/folder_page_white.png</file>
+        <file alias="document-open.png">icons/FreshFarm/16x16/folder.png</file>
         <file alias="document-new.png">icons/FreshFarm/16x16/page_white.png</file>
         <file alias="edit-copy.png">icons/FreshFarm/16x16/page_white_copy.png</file>
         <file alias="document-print-preview.png">icons/FreshFarm/16x16/page_white_magnify.png</file>
         <file alias="edit-paste.png">icons/FreshFarm/16x16/page_white_paste.png</file>
         <file alias="document-save-as.png">icons/FreshFarm/16x16/page_white_save.png</file>
+        <file alias="song-new.png">icons/FreshFarm/16x16/song.png</file>
+        <file alias="songbook.png">icons/FreshFarm/16x16/songbook.png</file>
+        <file alias="database-reload.png">icons/FreshFarm/16x16/database_refresh.png</file>
+        <file alias="song-add.png">icons/FreshFarm/16x16/song_add.png</file>
+        <file alias="arrow-left.png">icons/FreshFarm/16x16/arrow_left.png</file>
+        <file alias="arrow-right.png">icons/FreshFarm/16x16/arrow_right.png</file>
     </qresource>
     <qresource prefix="/icons/FreshFarm/24x24">
         <file alias="edit-redo.png">icons/FreshFarm/24x24/arrow_redo.png</file>
@@ -21,12 +27,18 @@
         <file alias="edit-cut.png">icons/FreshFarm/24x24/cut_red.png</file>
         <file alias="document-save.png">icons/FreshFarm/24x24/disk.png</file>
         <file alias="application-exit.png">icons/FreshFarm/24x24/door_out.png</file>
-        <file alias="document-open.png">icons/FreshFarm/24x24/folder_page_white.png</file>
+        <file alias="document-open.png">icons/FreshFarm/24x24/folder.png</file>
         <file alias="document-new.png">icons/FreshFarm/24x24/page_white.png</file>
         <file alias="edit-copy.png">icons/FreshFarm/24x24/page_white_copy.png</file>
         <file alias="document-print-preview.png">icons/FreshFarm/24x24/page_white_magnify.png</file>
         <file alias="edit-paste.png">icons/FreshFarm/24x24/page_white_paste.png</file>
         <file alias="document-save-as.png">icons/FreshFarm/24x24/page_white_save.png</file>
+        <file alias="song-new.png">icons/FreshFarm/24x24/song.png</file>
+        <file alias="songbook.png">icons/FreshFarm/24x24/songbook.png</file>
+        <file alias="database-reload.png">icons/FreshFarm/24x24/database_refresh.png</file>
+        <file alias="song-add.png">icons/FreshFarm/24x24/song_add.png</file>
+        <file alias="arrow-left.png">icons/FreshFarm/24x24/arrow_left.png</file>
+        <file alias="arrow-right.png">icons/FreshFarm/24x24/arrow_right.png</file>
     </qresource>
     <qresource prefix="/icons/FreshFarm/32x32">
         <file alias="edit-redo.png">icons/FreshFarm/32x32/arrow_redo.png</file>
@@ -34,11 +46,17 @@
         <file alias="edit-cut.png">icons/FreshFarm/32x32/cut_red.png</file>
         <file alias="document-save.png">icons/FreshFarm/32x32/disk.png</file>
         <file alias="application-exit.png">icons/FreshFarm/32x32/door_out.png</file>
-        <file alias="document-open.png">icons/FreshFarm/32x32/folder_page_white.png</file>
+        <file alias="document-open.png">icons/FreshFarm/32x32/folder.png</file>
         <file alias="document-new.png">icons/FreshFarm/32x32/page_white.png</file>
         <file alias="edit-copy.png">icons/FreshFarm/32x32/page_white_copy.png</file>
         <file alias="document-print-preview.png">icons/FreshFarm/32x32/page_white_magnify.png</file>
         <file alias="edit-paste.png">icons/FreshFarm/32x32/page_white_paste.png</file>
         <file alias="document-save-as.png">icons/FreshFarm/32x32/page_white_save.png</file>
+        <file alias="song-new.png">icons/FreshFarm/32x32/song.png</file>
+        <file alias="songbook.png">icons/FreshFarm/32x32/songbook.png</file>
+        <file alias="database-reload.png">icons/FreshFarm/32x32/database_refresh.png</file>
+        <file alias="song-add.png">icons/FreshFarm/32x32/song_add.png</file>
+        <file alias="arrow-left.png">icons/FreshFarm/32x32/arrow_left.png</file>
+        <file alias="arrow-right.png">icons/FreshFarm/32x32/arrow_right.png</file>
     </qresource>
 </RCC>

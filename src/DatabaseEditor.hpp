@@ -34,6 +34,8 @@ private slots:
     void editSong_();
     void deleteSongs_();
 
+    void newSongbook_();
+
     void openSong_(const QModelIndex& index);
 
     void selectionChanged_();

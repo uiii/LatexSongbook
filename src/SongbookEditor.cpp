@@ -14,14 +14,20 @@
 #include <QTextDocument>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QTime>
+#include <QPushButton>
+#include <QToolButton>
 
 #include "common.hpp"
 #include "TarArchive.hpp"
+#include "SongImportDialog.hpp"
 
-SongbookEditor::SongbookEditor(QWidget *parent) :
+SongbookEditor::SongbookEditor(Config* config, QWidget *parent):
     QMainWindow(parent),
-    isSaved_(true),
-    fileFilter_(tr("Songbook (*.lsb)")),
+    config_(config),
+    database_(new LocalDatabaseModel),
+    isModified_(false),
+    //fileFilter_(tr("Songbook (*.lsb)")), // TODO
     lastAccessedDir_(QDir::homePath()),
     ui_(new Ui::SongbookEditor)
 {
@@ -29,10 +35,12 @@ SongbookEditor::SongbookEditor(QWidget *parent) :
 
     QList<QPair<QAction*, QString> > actionIcons;
     actionIcons
-        << qMakePair(ui_->actionNew, QString("document-new"))
+        << qMakePair(ui_->actionNew, QString("songbook"))
         << qMakePair(ui_->actionOpen, QString("document-open"))
         << qMakePair(ui_->actionSave, QString("document-save"))
         << qMakePair(ui_->actionSaveAs, QString("document-save-as"))
+
+        //<< qMakePair(ui_->actionImportSongs, QString("song-add"))
 
         << qMakePair(ui_->actionUndo, QString("edit-undo"))
         << qMakePair(ui_->actionRedo, QString("edit-redo"))
@@ -44,17 +52,28 @@ SongbookEditor::SongbookEditor(QWidget *parent) :
 
     for(auto& actionIcon: actionIcons)
     {
-        if(! QIcon::hasThemeIcon(actionIcon.second))
-        {
-            QIcon::setThemeName("FreshFarm");
-            break;
-        }
-    }
-
-    for(auto& actionIcon: actionIcons)
-    {
         actionIcon.first->setIcon(QIcon::fromTheme(actionIcon.second));
     }
+
+    ui_->menuImportSongs->setIcon(QIcon::fromTheme("song-add"));
+
+    QToolButton* importSongsButton = new QToolButton;
+    importSongsButton->setMenu(ui_->menuImportSongs);
+    importSongsButton->setPopupMode(QToolButton::MenuButtonPopup);
+    importSongsButton->setIcon(QIcon::fromTheme("song-add"));
+    ui_->toolBar->insertWidget(ui_->actionNew, importSongsButton);
+    ui_->toolBar->insertSeparator(ui_->actionNew);
+
+    ui_->songs->setModel(database_);
+
+    ui_->songs->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
+    ui_->songs->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
+    ui_->songs->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
+    ui_->songs->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
+
+    connect(importSongsButton, SIGNAL(clicked()), this, SLOT(importFromDatabase_()));
+    connect(ui_->actionImportFromFiles, SIGNAL(activated()), this, SLOT(importFromFiles_()));
+    connect(ui_->actionImportFromDatabase, SIGNAL(activated()), this, SLOT(importFromDatabase_()));
 
     connect(ui_->actionNew, SIGNAL(activated()), this, SLOT(newSongbook()));
     connect(ui_->actionOpen, SIGNAL(activated()), this, SLOT(openSongbook()));
@@ -79,11 +98,10 @@ void SongbookEditor::newSongbook()
     if(continueIfUnsaved())
     {
         songbookFileName_ = QString();
-
-        makeTmpDir_();
+        removeTmpDir_();
 
         setAsSaved(true);
-        updateWindowTitle();
+        updateEditorState();
     }
 }
 
@@ -106,12 +124,12 @@ void SongbookEditor::openSongbook(QString fileName)
     if(continueIfUnsaved() && loadSongbookInfo_(archive))
     {
         songbookFileName_ = fileName;
-        songbookTmpDir_ = makeTmpDir_();
+        removeTmpDir_();
 
         archive.extract(songbookTmpDir_);
 
         setAsSaved(true);
-        updateWindowTitle();
+        updateEditorState();
     }
 }
 
@@ -156,15 +174,16 @@ bool SongbookEditor::saveAsSongbook(QString fileName)
 
 void SongbookEditor::setAsSaved(bool isSaved)
 {
-    isSaved_ = isSaved;
+    isModified_ = ! isSaved;
 }
 
-void SongbookEditor::updateSongbookState()
+void SongbookEditor::updateEditorState()
 {
-    /*isSaved_ = ! document_->isModified();
+    //isSaved_ = ! document_->isModified();
 
-    ui_->actionUndo->setEnabled(document_->isUndoAvailable());
-    ui_->actionRedo->setEnabled(document_->isRedoAvailable());*/
+    ui_->actionSave->setEnabled(isModified_);
+    //ui_->actionUndo->setEnabled(document_->isUndoAvailable());
+    //ui_->actionRedo->setEnabled(document_->isRedoAvailable());
 
     updateWindowTitle();
 }
@@ -174,7 +193,7 @@ void SongbookEditor::updateWindowTitle()
     QString title;
     QTextStream stream(&title);
 
-    if(! isSaved_)
+    if(isModified_)
     {
         stream << "* ";
     }
@@ -200,7 +219,7 @@ void SongbookEditor::updateWindowTitle()
 
 bool SongbookEditor::continueIfUnsaved()
 {
-    if(isSaved_)
+    if(! isModified_)
     {
         return true;
     }
@@ -230,8 +249,6 @@ void SongbookEditor::closeEvent(QCloseEvent *event)
 {
     if(continueIfUnsaved())
     {
-        removeTmpDir_();
-
         event->accept();
     }
     else
@@ -259,28 +276,48 @@ void SongbookEditor::extractTarTest()
     archive.extract(QFileInfo(fileName).path());
 }
 
-QString SongbookEditor::makeTmpDir_()
+void SongbookEditor::importFromFiles_()
 {
-    removeTmpDir_();
+    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import songs", "."); // TODO
 
-    std::size_t suffix = 0;
-    QDir tmpDir(QDir::temp().filePath("LatexSongbook"));
-    if(tmpDir.exists())
+    if(! fileNames.isEmpty())
     {
-        QStringList entryList = tmpDir.entryList(QStringList("songbook*"), QDir::NoFilter, QDir::Name | QDir::Reversed);
-        if(! entryList.isEmpty())
+        makeTmpDir_();
+
+        for(QString fileName : fileNames)
         {
-            suffix = entryList.first().replace("songbook", "").toInt();
-            ++suffix;
+            QFile file(fileName);
+            bool res = file.copy(QDir(songbookTmpDir_).filePath(QFileInfo(file).fileName()));
+            qDebug() << QDir(songbookTmpDir_).filePath(QFileInfo(file).fileName());
+            qDebug() << res;
         }
     }
+}
 
-    QString songbookTmpDir = QDir::temp().filePath(
-        QString("LatexSongbook/songbook").append(QString::number(suffix)));
+void SongbookEditor::importFromDatabase_()
+{
+    SongImportDialog* dialog = new SongImportDialog();
+    dialog->exec();
+}
 
-    QDir().mkpath(songbookTmpDir);
+void SongbookEditor::makeTmpDir_()
+{
+    if(songbookTmpDir_.isEmpty())
+    {
+        qsrand(QTime::currentTime().msec());
 
-    return songbookTmpDir;
+        do
+        {
+            songbookTmpDir_ = QDir::temp().absoluteFilePath(QString("songbook").append(QString::number(qrand() % 1000)));
+        } while(QFileInfo(songbookTmpDir_).exists());
+    }
+
+    if(! QFileInfo(songbookTmpDir_).exists())
+    {
+        QDir().mkpath(songbookTmpDir_);
+    }
+
+    database_->setDirectory(songbookTmpDir_);
 }
 
 void SongbookEditor::removeTmpDir_()

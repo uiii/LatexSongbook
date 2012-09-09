@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+#include "Config.hpp"
+#include "LocalDatabaseModel.hpp"
+
 namespace Ui {
     class SongbookEditor;
 }
@@ -16,7 +19,7 @@ class SongbookEditor : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit SongbookEditor(QWidget *parent = 0);
+    explicit SongbookEditor(Config* config, QWidget *parent = 0);
     ~SongbookEditor();
 
     bool continueIfUnsaved();
@@ -31,23 +34,30 @@ public slots:
 
     void setAsSaved(bool flag);
 
-    void updateSongbookState();
+    void updateEditorState();
 
     void updateWindowTitle();
 
     void saveTarTest(); // TODO - remove
     void extractTarTest(); // TODO - remove
 
+private slots:
+    void importFromFiles_();
+    void importFromDatabase_();
+
 private:
     bool loadSongbookInfo_(const TarArchive& archive);
 
-    QString makeTmpDir_();
+    Config* config_;
+    LocalDatabaseModel* database_;
+
+    void makeTmpDir_();
     void removeTmpDir_();
 
     QString songbookFileName_;
     QString songbookTmpDir_;
 
-    bool isSaved_;
+    bool isModified_;
 
     QString fileFilter_;
     QString lastAccessedDir_;
