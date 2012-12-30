@@ -2,9 +2,19 @@
 # -*- conding: utf-8 -*-
 
 """
-usage:
-    velkyzpevnik.py <author> <song> <tune> [-o]
-    velkyzpevnik.py <song-url> <tune> [-o]
+Usage:
+    velkyzpevnik.py <author> <song> <tune> [-o PATH | --output=PATH]
+    velkyzpevnik.py <song-url> <tune> [-o PATH | --output=PATH]
+    velkyzpevnik.py -h | --help
+
+Options:
+    -h, --help                Show this screen.
+    -o PATH, --output PATH    Print song into file specified by PATH
+                              instead of standard output.
+                              PATH can be either file or directory.
+                              When directory is specified, the output
+                              file is placed there and its name is
+                              in the form '<author>.<song>.txt'.
 """
 
 from docopt import docopt
@@ -12,6 +22,7 @@ from urllib import request
 from bs4 import BeautifulSoup
 from bs4 import element
 import re
+import os
 
 def getHtml(url):
     try:
@@ -28,6 +39,7 @@ def error(message):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
+    print(args)
 
     baseUrl = "http://velkyzpevnik.cz"
 
@@ -58,12 +70,19 @@ if __name__ == '__main__':
     song = re.sub(r'(^|\n) ( *)@@([^\n]+)', r'\1:\2@@\3', songHtml.get_text())
     song = re.sub(r'@@', '', song)
 
-    #print(title)
-    #print(song)
+    if args['--output']:
+        outputPath = args['--output']
 
-    if args['-o']:
-        outputFile = open(re.sub(r'.*/([^/]+)/([^/]+)/?', r'\1.\2.txt', songUrl), 'w')
+        if outputPath.endswith(os.sep):
+            if not os.path.isdir(outputPath):
+                error("Directory not exists: " + outputPath)
+
+        if os.path.isdir(outputPath):
+            outputPath = outputPath + os.sep + re.sub(r'.*/([^/]+)/([^/]+)/?', r'\1.\2.txt', songUrl)
+
+        outputFile = open(outputPath, 'w')
         outputFile.write(title + "\n\n")
         outputFile.write(song)
-
-    #re.sub(r'^( +)<span class="chord"
+    else:
+        print(title + "\n")
+        print(song)
