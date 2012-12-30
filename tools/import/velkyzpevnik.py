@@ -58,8 +58,8 @@ if __name__ == '__main__':
     song = re.sub(r'(^|\n) ( *)@@([^\n]+)', r'\1:\2@@\3', songHtml.get_text())
     song = re.sub(r'@@', '', song)
 
-    print(title)
-    print(song)
+    #print(title)
+    #print(song)
 
     if args['-o']:
         outputFile = open(re.sub(r'.*/([^/]+)/([^/]+)/?', r'\1.\2.txt', songUrl), 'w')
