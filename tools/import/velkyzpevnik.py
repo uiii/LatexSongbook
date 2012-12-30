@@ -39,7 +39,7 @@ def error(message):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-    print(args)
+    #print(args)
 
     baseUrl = "http://velkyzpevnik.cz"
 
