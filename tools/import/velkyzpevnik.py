@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup
 from bs4 import element
 import re
 import os
+import sys
 
 def getHtml(url):
     try:
@@ -34,8 +35,13 @@ def getHtml(url):
     return BeautifulSoup(source)
 
 def error(message):
-    print("ERROR: " + message)
+    sys.stderr.write("ERROR: " + message + "\n")
+    sys.stderr.flush()
     exit(1)
+
+def warning(message):
+    sys.stderr.write("WARNING: " + message + "\n")
+    sys.stderr.flush()
 
 if __name__ == '__main__':
     args = docopt(__doc__)
@@ -59,7 +65,11 @@ if __name__ == '__main__':
         songId = input['value']
         html = getHtml(baseUrl + "/song.php?new_tune=" + requiredTune + "&tune=" + currentTune + "&id=" + songId)
 
-    title = re.sub(r'(.+) - (.+)', r'\2 (\1)', html.title.string)
+    title = ""
+    if html.title.string:
+        title = re.sub(r'^([^-]+) - ([^\(\)]+)( .*)?$', r'\2 (\1)', html.title.string)
+    else:
+        warning("Song title cannot be determined.")
 
     songHtml = html.find('pre', class_="pisen") or error("Song is not valid")
     #print(songHtml)
