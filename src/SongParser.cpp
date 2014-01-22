@@ -1,121 +1,269 @@
 #include "SongParser.hpp"
 
-#include <boost/spirit/include/qi.hpp>
+#include <QRegExp>
+#include <QTextStream>
+#include <QDebug>
+#include <QStringList>
 
-using namespace boost::spirit;
-
-class SongGrammar : qi::grammar<Lexer::Tokens::iterator>
+SongParser::SongParser():
+    parsed_(false)
 {
-public:
-    typedef qi::rule<Lexer::Tokens::iterator> Rule;
 
-    SongGrammar();
-
-private:
-    Rule line_(Rule line_content);
-    Rule token_(SongParser::TokenID token);
-
-    Rule song_;
-    Rule song_line_;
-    Rule words_;
-    Rule title_;
-    Rule chords_;
-    Rule single_chords_;
-    Rule new_section_;
-    Rule lyrics_;
-    Rule section_name_;
-};
-
-SongGrammar::SongGrammar():
-    SongGrammar::base_type(song_)
-{
-    song_ =
-        line_(title_)
-        >> +song_line_
-        ;
-
-    title_ =
-        token_(SongParser::TOK_WORD)
-        >> token_(SongParser::TOK_SPACE)
-        >> token_(SongParser::TOK_LEFT_BRACKET)
-        >> token_(SongParser::TOK_WORD)
-        >> token_(SongParser::TOK_RIGHT_BRACKET)
-        ;
-
-    song_line_ =
-        line_(single_chords_)
-        | ( -line_(chords_) >> line_(new_section_ | lyrics_) )
-        ;
-
-    single_chords_ =
-        token_(SongParser::TOK_COLON) >> token_(SongParser::TOK_COLON)
-        >> words_
-        ;
-
-    chords_ =
-        token_(SongParser::TOK_COLON)
-        >> words_
-        ;
-
-    new_section_ =
-        -section_name_
-        >> token_(SongParser::TOK_DOT)
-        >> lyrics_
-        ;
-
-    lyrics_ =
-        words_
-        ;
-
-    words_ =
-        +( +token_(SongParser::TOK_SPACE) >> token_(SongParser::TOK_WORD) )
-        >> *token_(SongParser::TOK_SPACE)
-        ;
-
-    section_name_ =
-        token_(SongParser::TOK_REFRAIN) | token_(SongParser::TOK_RECITATION) | token_(SongParser::TOK_WORD)
-        -( token_(SongParser::TOK_SPACE) >> token_(SongParser::TOK_NUMBER) )
-        ;
 }
 
-SongGrammar::Rule SongGrammar::line_(SongGrammar::Rule line_content)
+void SongParser::parse(const QString &text)
 {
-    Rule rule =
-        line_content << token_(SongParser::TOK_EOL)
-        << *( *token_(SongParser::TOK_SPACE) >> token_(SongParser::TOK_EOL) )
-        ;
+    clear_();
 
-    return rule;
+    originalText_ = text;
+
+    QTextStream stream(&originalText_);
+    QString line = stream.readLine();
+
+    QRegExp reg("(\\S.+) +\\((\\S.+)\\) *");
+    if(! reg.exactMatch(line))
+    {
+        // TODO error
+    }
+    else
+    {
+        name_ = reg.cap(1);
+        author_ = reg.cap(2);
+    }
+
+    text_ = stream.readAll();
 }
 
-SongGrammar::Rule SongGrammar::token_(SongParser::TokenID token)
+bool SongParser::noErrors() const
 {
-    return qi::char_(token);
+    parseText_();
+
+    return errors_.isEmpty();
 }
 
-SongParser::SongParser()
+QString SongParser::name() const
 {
-    lexer_.addRule(" ", TOK_SPACE);
-    lexer_.addRule("\\.", TOK_DOT);
-    lexer_.addRule("\\(", TOK_LEFT_BRACKET);
-    lexer_.addRule("\\)", TOK_RIGHT_BRACKET);
-    lexer_.addRule(":", TOK_COLON);
-    lexer_.addRule("[0-9]+", TOK_NUMBER);
-    lexer_.addRule("Capo", TOK_CAPO);
-    lexer_.addRule("Rec", TOK_RECITATION);
-    lexer_.addRule("Ref", TOK_REFRAIN);
-    lexer_.addRule("\\n", TOK_EOL);
-    lexer_.addRule("[^ \\t\\n\\r\\(\\)\\.:0-9]+", TOK_WORD);
+    return name_;
 }
 
-void SongParser::parse(const QString& text)
+QString SongParser::author() const
 {
-    Lexer::Tokens tokens = lexer_.tokenize(text);
+    return author_;
+}
 
-    SongGrammar grammar;
+QList<SongParser::Section> SongParser::sections() const
+{
+    parseText_();
 
-    Lexer::Tokens::iterator begin = tokens.begin();
-    Lexer::Tokens::iterator end = tokens.end();
-    bool result = qi::parse(begin, end, grammar);
-    std::cout << result << std::endl;
+    if(noErrors())
+    {
+        return sections_;
+    }
+    else
+    {
+        return QList<Section>();
+    }
+}
+
+QList<SongParser::Message> SongParser::errors() const
+{
+    parseText_();
+
+    return errors_;
+}
+
+QList<SongParser::Message> SongParser::warnings() const
+{
+    parseText_();
+
+    return warnings_;
+}
+
+void SongParser::clear_()
+{
+    name_ = QString();
+    author_ = QString();
+    text_ = QString();
+
+    parsed_ = false;
+
+    sections_.clear();
+    errors_.clear();
+    warnings_.clear();
+}
+
+void SongParser::parseText_() const
+{
+    if(parsed_)
+    {
+        return;
+    }
+
+    QList<Chord> chordBuffer;
+    Section* currentSection = nullptr;
+
+    int lineNumber = 1;
+
+    QString text = text_;
+    QTextStream stream(&text);
+    while(! stream.atEnd())
+    {
+        ++lineNumber;
+
+        QString line = stream.readLine();
+
+        QRegExp emptyLineExp(" *");
+        QRegExp lyricsLineExp("( +)(.+)");
+        QRegExp chordsLineExp("((:+) +)(.+)");
+        QRegExp newSectionLineExp("(([^\\.]*)\\. +)(.+)");
+
+        if(emptyLineExp.exactMatch(line))
+        {
+            // skip empty line
+        }
+        else if(lyricsLineExp.exactMatch(line))
+        {
+            parseLyricsLine_(lyricsLineExp.cap(2), lineNumber, chordBuffer, currentSection, lyricsLineExp.cap(1).size());
+        }
+        else if(chordsLineExp.exactMatch(line))
+        {
+            parseChordLine_(chordsLineExp.cap(3), lineNumber, chordBuffer, currentSection, chordsLineExp.cap(1).size());
+
+            if(chordsLineExp.cap(2).size() > 1)
+            {
+                newChordSection_(chordBuffer, currentSection);
+            }
+        }
+        else if(newSectionLineExp.exactMatch(line))
+        {
+            newSection_(newSectionLineExp.cap(2), currentSection);
+
+            parseLyricsLine_(newSectionLineExp.cap(3), lineNumber, chordBuffer, currentSection, newSectionLineExp.cap(1).size());
+        }
+        else
+        {
+            Message error = { lineNumber, "Syntax error." };
+            errors_.push_back(error);
+        }
+    }
+
+    QTextStream output;
+    for(Section s : sections_)
+    {
+        qDebug() << "section";
+        for(Line l : s.lines)
+        {
+            qDebug() << "line";
+            if(! l.chords.isEmpty()) qDebug() << l.chords.first().offset;
+            qDebug() << l.lyrics;
+        }
+    }
+
+    parsed_ = true;
+}
+
+void SongParser::newSection_(const QString& sectionLabel, SongParser::Section*& currentSection) const
+{
+    QRegExp verseExp("[0-9]+");
+    QRegExp refrainExp("Ref( ([0-9]+))?");
+    QRegExp recitationExp("Rec( ([0-9]+))?");
+
+    Section section;
+
+    if(sectionLabel.isEmpty())
+    {
+        section.type = Unmarked;
+    }
+    else if(verseExp.exactMatch(sectionLabel))
+    {
+        section.type = Verse;
+        section.detail = sectionLabel;
+    }
+    else if(refrainExp.exactMatch(sectionLabel))
+    {
+        section.type = Refrain;
+        section.detail = refrainExp.cap(2);
+    }
+    else if(recitationExp.exactMatch(sectionLabel))
+    {
+        section.type = Recitation;
+        section.detail = recitationExp.cap(2);
+    }
+    else
+    {
+        section.type = Label;
+        section.detail = sectionLabel;
+    }
+
+    sections_.push_back(section);
+    currentSection = &sections_.back();
+}
+
+void SongParser::newChordSection_(QList<Chord>& chordBuffer, Section*& currentSection) const
+{
+    Line line = {chordBuffer, ""};
+
+    Section section = {ChordsLine, QString(), {line}};
+    sections_.push_back(section);
+
+    currentSection = nullptr;
+
+    chordBuffer.clear();
+}
+
+void SongParser::parseLyricsLine_(const QString& lyrics, int lineNumber, QList<Chord>& chordBuffer, Section*& currentSection, int offset) const
+{
+    if(! currentSection)
+    {
+        Message error = { lineNumber, "You must started some song's section before lyrics line." };
+        errors_.push_back(error);
+
+        return;
+    }
+
+    if(! chordBuffer.isEmpty())
+    {
+        chordBuffer.first().offset -= offset;
+        if(chordBuffer.first().offset < 0)
+        {
+            Message error = { lineNumber - 1, "Chord cannot be before lyrics line beginning." };
+            errors_.push_back(error);
+        }
+    }
+
+    Line line = {chordBuffer, lyrics};
+    currentSection->lines.push_back(line);
+
+    chordBuffer.clear();
+}
+
+void SongParser::parseChordLine_(const QString& line, int lineNumber, QList<SongParser::Chord>& chordBuffer, Section*& currentSection, int offset) const
+{
+    if(! chordBuffer.isEmpty())
+    {
+        Message warning = { lineNumber, "Lyrics expected. Previous chords line will be ignored." };
+        warnings_.push_back(warning);
+
+        chordBuffer.clear();
+    }
+
+    QRegExp chordExp("( *)([^ ]+)");
+
+    int lastChordNameSize = 0;
+    int pos = 0;
+    while ((pos = chordExp.indexIn(line, pos)) != -1)
+    {
+        Chord chord = { lastChordNameSize + chordExp.cap(1).size(), chordExp.cap(2) };
+        chordBuffer.append(chord);
+
+        lastChordNameSize = chord.name.size();
+        pos += chordExp.matchedLength();
+    }
+
+    chordBuffer.first().offset += offset;
+
+    for(Chord ch : chordBuffer) // remove
+    {
+        qDebug() << ch.offset << ": " << ch.name;
+    }
 }
